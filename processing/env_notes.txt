@@ -1,0 +1,13 @@
+os
+pathlib
+zipfile
+
+tqdm
+dask
+xarray
+xclim
+numpy
+pathlib
+shapely
+geopandas
+rasterio
