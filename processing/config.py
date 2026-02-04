@@ -1,6 +1,7 @@
 import os
 
 DATA_DIR = os.getenv("DATA_DIR")
+TMP_DIR = os.getenv("TMP_DIR")
 OUT_DIR = os.getenv("OUT_DIR")
 
 source_zips = [
