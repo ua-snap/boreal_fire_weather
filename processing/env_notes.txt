@@ -2,6 +2,7 @@ os
 pathlib
 zipfile
 
+black
 tqdm
 dask
 xarray
