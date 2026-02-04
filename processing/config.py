@@ -13,10 +13,10 @@ source_zips = [
     "MRI-ESM2-0.zip",
 ]
 
-era5_years = (1979,2020)
-cmip6_years = (1979,2099)
-hist_years = (1980,2009)
-sim_periods = ((2010,2039),(2040,2069),(2070,2099))
+era5_years = (1979, 2020)
+cmip6_years = (1979, 2099)
+hist_years = (1980, 2009)
+sim_periods = ((2010, 2039), (2040, 2069), (2070, 2099))
 
 geog_bbox = (-177.1875, 35.0, -35.0, 79.375)
 
