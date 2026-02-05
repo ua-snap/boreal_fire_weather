@@ -1,10 +1,10 @@
-import tqdm
+from tqdm import tqdm
 import dask
 import xarray as xr
 import xclim as xc
 import numpy as np
 from pathlib import Path
-from config import DATA_DIR, OUT_DIR, era5_years, geog_bbox
+from config import ERA5_IN, ERA5_PROCESSED, era5_years, geog_bbox
 from utils import *
 
 # Suppress dask warnings on chunk size
@@ -98,12 +98,14 @@ def _organize_era5(ds: xr.Dataset) -> xr.Dataset:
         Converted to netcdf4 using netCDF library version 4.8.1.",
     }
 
-    ds = ds.rename(
-        {
-            "longitude": "lon",
-            "latitude": "lat",
-        }
-    )
+    # Rename longitude and latitude dimensions to 'lon' and 'lat' if necessary
+    if "longitude" in ds.coords and "latitude" in ds.coords:
+        ds = ds.rename(
+            {
+                "longitude": "lon",
+                "latitude": "lat",
+            }
+        )
 
     # Clip geographic limits
     ds = trim_geolims(ds, geog_bbox)
@@ -178,15 +180,21 @@ def process_era5(src: str, dask_load=False) -> xr.Dataset:
 
 if __name__ == "__main__":
 
-    era5_dir = Path(DATA_DIR) / "era5"
-    out_dir = Path(OUT_DIR) / "processed" / "era5"
+    era5_dir = Path(ERA5_IN)
+    out_dir = Path(ERA5_PROCESSED)
+    out_dir.mkdir(parents=True, exist_ok=True)
 
     start_year, end_year = era5_years
     year_range = range(start_year, end_year + 1)
 
-    with tqdm(total=len()) as pbar:
+    with tqdm(total=len(year_range)) as pbar:
         for year in year_range:
-            src = list(era5_dir.glob("%d*.nc" % year))
+            src = list(era5_dir.glob("*%d.nc" % year))
+            print(f"\nProcessing year {year}: {len(src)} files found")
+            if src:
+                print(f"Files: {[f.name for f in src]}")
+            else:
+                print(f"WARNING: No files found for year {year}")
             ds = process_era5(src, dask_load=True)
             for var in list(ds.keys()):
                 fn = out_dir / ("%s_era5_%d.nc" % (var, year))

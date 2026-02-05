@@ -1,13 +1,14 @@
-import tqdm
+from tqdm import tqdm
 import dask
 import xarray as xr
 import numpy as np
+import pandas as pd
 from pathlib import Path
 from xclim.core.units import str2pint
-from xclim.sdba import QuantileDeltaMapping
-from xclim.sdba.processing import jitter_under_thresh
+from xsdba import QuantileDeltaMapping
+from xsdba.processing import jitter_under_thresh
 
-from config import OUT_DIR, SHP_MASK, gcm_list, metvars, hist_years, sim_periods, qdm
+from config import ERA5_PROCESSED, CMIP6_PROCESSED, OUT_DIR, SHP_MASK, gcm_list, metvars, hist_years, sim_periods, qdm
 from utils import *
 
 import warnings
@@ -156,7 +157,7 @@ def chunk_data_arrays(ref, hst, sim, frac=0.2):
     mapping.
     """
     axes = get_geoaxes(ref)
-    n, m = (ref[axes["X"][0]].size, ref[axes["X"][0]].size)
+    n, m = (ref[axes["Y"]].size, ref[axes["X"]].size)
 
     ref = ref.chunk(chunks={"time": -1, "lat": round(n * frac), "lon": round(m * frac)})
 
@@ -208,25 +209,26 @@ def quantile_delta_mapping(
 
     # Read in datasets for reference time period (ref), historical overlap of
     # gcm (hst), and future simulation/projection period (sim)
+    # Load directly into memory without chunking to avoid read-only issues
     ref = xr.open_mfdataset(
         ref_src,
         engine="h5netcdf",
-        parallel=dask_load,
-        chunks={"time": 365, "lon": -1, "lat": -1},
+        parallel=False,
+        chunks=None,
     )
 
     hst = xr.open_mfdataset(
         hst_src,
         engine="h5netcdf",
-        parallel=dask_load,
-        chunks={"time": 365, "lon": -1, "lat": -1},
+        parallel=False,
+        chunks=None,
     )
 
     sim = xr.open_mfdataset(
         sim_src,
         engine="h5netcdf",
-        parallel=dask_load,
-        chunks={"time": 365, "lon": -1, "lat": -1},
+        parallel=False,
+        chunks=None,
     )
 
     # Check to make sure the variable (e.g. precip) is the same for each dataset
@@ -239,6 +241,18 @@ def quantile_delta_mapping(
 
     # Will raise Exception if not all the same.
     same_units(ref, hst, sim)
+
+    # Align time coordinates - ensure all datasets use consistent time encoding
+    # This handles cases where time units have different offsets (e.g., midnight vs noon)
+    # Reindex hst to match ref's exact time coordinates (same dates)
+    if not ref.time.equals(hst.time):
+        hst = hst.reindex(time=ref.time, method="nearest", tolerance=pd.Timedelta("12h"))
+    
+    # For sim (which may be a different time period), normalize time-of-day to match ref
+    # by flooring all times to the start of the day
+    ref = ref.assign_coords(time=ref.time.dt.floor("D"))
+    hst = hst.assign_coords(time=hst.time.dt.floor("D"))
+    sim = sim.assign_coords(time=sim.time.dt.floor("D"))
 
     # Do regridding so all data arrays are aligned and have the same shape and
     # dimensions
@@ -265,6 +279,23 @@ def quantile_delta_mapping(
         ref = jitter_under_thresh(ref, thresh_str)
         hst = jitter_under_thresh(hst, thresh_str)
         sim = jitter_under_thresh(sim, thresh_str)
+
+    # Ensure all underlying numpy arrays are writable before QDM
+    # This prevents "assignment destination is read-only" errors in xsdba
+    ref.values.setflags(write=True)
+    hst.values.setflags(write=True)
+    sim.values.setflags(write=True)
+    
+    # Also ensure coordinate arrays are writable  
+    for coord in ref.coords:
+        if hasattr(ref[coord].values, 'setflags'):
+            ref[coord].values.setflags(write=True)
+    for coord in hst.coords:
+        if hasattr(hst[coord].values, 'setflags'):
+            hst[coord].values.setflags(write=True)
+    for coord in sim.coords:
+        if hasattr(sim[coord].values, 'setflags'):
+            sim[coord].values.setflags(write=True)
 
     # Training step in Quantile delta mapping
     QDM = QuantileDeltaMapping.train(
@@ -324,16 +355,17 @@ if __name__ == "__main__":
     else:
         shpfile = Path(SHP_MASK)
 
-    era5_dir = Path(OUT_DIR) / "processed" / "era5"
+    era5_dir = Path(ERA5_PROCESSED)
 
     oper = qdm["oper"]
     min_thresh = qdm["min_thresh"]
-    quantile_vals = np.array(qdm["quantile_vals"])
+    quantile_vals = np.array(qdm["quantile_vals"], dtype=np.float32)
+    quantile_vals.flags.writeable = True  # Ensure array is writeable
 
     N = len(gcm_list) * len(metvars) * len(sim_periods)
     with tqdm(total=N) as pbar:
         for gcm in gcm_list:
-            in_dir = Path(OUT_DIR).joinpath("processed", gcm)
+            in_dir = Path(CMIP6_PROCESSED).joinpath(gcm)
             out_dir = Path(OUT_DIR).joinpath("bias_corrected", gcm)
             if out_dir.exists() is False:
                 out_dir.mkdir(parents=True)

@@ -113,7 +113,8 @@ def get_var_names(ds: xr.Dataset) -> list:
     Get variable names from xarray dataset.
     """
     # Return list of all variable names in netcdf dataset
-    return list(ds.keys())
+    vars = list(ds.data_vars)
+    return vars
 
 
 def get_axes_names(ds) -> dict:
@@ -263,7 +264,7 @@ def regrid_geodata(
     x, y = get_geocoords(target_coords, **kwargs)
 
     # Use built in xarray interp function to do interpolation
-    ds_interp = ds.interp({axes["X"][0]: x, axes["Y"][0]: y}, method=method)
+    ds_interp = ds.interp({axes["X"]: x, axes["Y"]: y}, method=method)
     return ds_interp
 
 

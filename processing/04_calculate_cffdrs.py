@@ -1,9 +1,9 @@
-import tqdm
+from tqdm import tqdm
 import xarray as xr
 import numpy as np
 from pathlib import Path
 
-from config import OUT_DIR, gcm_list, era5_years, hist_years, sim_periods
+from config import ERA5_PROCESSED, OUT_DIR, gcm_list, era5_years, hist_years, sim_periods
 from utils import *
 
 import warnings
@@ -454,7 +454,7 @@ def cffdrs_calc(
 
 if __name__ == "__main__":
 
-    era5_dir = Path(OUT_DIR).joinpath("processed", "era5")
+    era5_dir = Path(ERA5_PROCESSED)
 
     era5_cffdrs_dir = Path(OUT_DIR).joinpath("cffdrs", "era5")
     if era5_cffdrs_dir.exists() is False:

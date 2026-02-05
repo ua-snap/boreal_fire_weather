@@ -1,5 +1,6 @@
 name: cffdrs
 channels:
+  - conda-forge
   - defaults
 dependencies:
   - black
@@ -12,5 +13,6 @@ dependencies:
   - shapely
   - tqdm
   - xarray
-  - xclim
+  - xclim=0.59.1
+  - xsdba
 prefix: /home/jdpaul3/miniconda3/envs/cffdrs

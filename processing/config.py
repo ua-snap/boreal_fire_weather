@@ -1,17 +1,18 @@
 import os
 
-ZIP_DIR = os.getenv("ZIP_DIR")
-DATA_DIR = os.getenv("DATA_DIR")
-OUT_DIR = os.getenv("OUT_DIR")
-SHP_MASK = os.getenv("SHP_MASK")
+# Input directories (raw data)
+ERA5_IN = os.getenv("ERA5_IN")
+CMIP6_IN = os.getenv("CMIP6_IN")
 
-source_zips = [
-    "CNRM-CM6-1-HR.zip",
-    "EC-Earth3-Veg.zip",
-    "era5.zip",
-    "MPI-ESM1-2-HR.zip",
-    "MRI-ESM2-0.zip",
-]
+# Processed data directories
+ERA5_PROCESSED = os.getenv("ERA5_PROCESSED")
+CMIP6_PROCESSED = os.getenv("CMIP6_PROCESSED")
+
+# Output directory for bias correction and CFFDRS
+OUT_DIR = os.getenv("OUT_DIR")
+
+# Optional spatial mask
+SHP_MASK = os.getenv("SHP_MASK")
 
 era5_years = (1979, 2020)
 cmip6_years = (1979, 2099)

@@ -1,10 +1,10 @@
-import tqdm
+from tqdm import tqdm
 import dask
 import xarray as xr
 import xclim as xc
 import numpy as np
 from pathlib import Path
-from config import DATA_DIR, OUT_DIR, cmip6_years, gcm_list, metvars, geog_bbox
+from config import CMIP6_IN, CMIP6_PROCESSED, cmip6_years, gcm_list, metvars, geog_bbox
 from utils import *
 
 # Suppress dask warnings on chunk size
@@ -133,15 +133,15 @@ if __name__ == "__main__":
     N = len(gcm_list) * len(metvars)
     with tqdm(total=N) as pbar:
         for gcm in gcm_list:
-            cmip6_dir = Path(DATA_DIR).joinpath(gcm)
-            out_dir = Path(OUT_DIR).joinpath("processed", gcm)
+            cmip6_dir = Path(CMIP6_IN).joinpath(gcm)
+            out_dir = Path(CMIP6_PROCESSED).joinpath(gcm)
             if not out_dir.exists():
                 out_dir.mkdir(parents=True, exist_ok=True)
             for var in metvars:
                 if var == "sfcWind":
                     src = list(cmip6_dir.glob("?as_*nc"))
                 else:
-                    src - list(cmip6_dir.glob("%s*nc" % var))
+                    src = list(cmip6_dir.glob("%s*nc" % var))
                 ds = process_cmip6(src)
 
                 for year in year_range:
