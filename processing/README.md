@@ -6,10 +6,10 @@ This README assumes you have downloaded copies of the CMIP6 and ERA5 source data
 
 ### Setup
 
-Create a conda environment using the `environment.yml`
+Create a micromamba environment using the `environment.yml`
 ```bash
-conda env create -f environment.yml
-conda activate cffdrs
+micromamba env create -f environment.yml
+micromamba activate cffdrs
 ```
 
 Set environment variables

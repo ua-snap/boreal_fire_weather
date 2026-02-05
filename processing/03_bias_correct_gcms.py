@@ -1,12 +1,15 @@
 from tqdm import tqdm
 import dask
+from dask.diagnostics import ProgressBar
 import xarray as xr
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from datetime import datetime
+import time
 from xclim.core.units import str2pint
-from xsdba import QuantileDeltaMapping
-from xsdba.processing import jitter_under_thresh
+from xclim.sdba import QuantileDeltaMapping
+from xclim.sdba.processing import jitter_under_thresh
 
 from config import ERA5_PROCESSED, CMIP6_PROCESSED, OUT_DIR, SHP_MASK, gcm_list, metvars, hist_years, sim_periods, qdm
 from utils import *
@@ -209,26 +212,25 @@ def quantile_delta_mapping(
 
     # Read in datasets for reference time period (ref), historical overlap of
     # gcm (hst), and future simulation/projection period (sim)
-    # Load directly into memory without chunking to avoid read-only issues
     ref = xr.open_mfdataset(
         ref_src,
         engine="h5netcdf",
-        parallel=False,
-        chunks=None,
+        parallel=dask_load,
+        chunks={"time": 365, "lon": -1, "lat": -1},
     )
 
     hst = xr.open_mfdataset(
         hst_src,
         engine="h5netcdf",
-        parallel=False,
-        chunks=None,
+        parallel=dask_load,
+        chunks={"time": 365, "lon": -1, "lat": -1},
     )
 
     sim = xr.open_mfdataset(
         sim_src,
         engine="h5netcdf",
-        parallel=False,
-        chunks=None,
+        parallel=dask_load,
+        chunks={"time": 365, "lon": -1, "lat": -1},
     )
 
     # Check to make sure the variable (e.g. precip) is the same for each dataset
@@ -349,6 +351,14 @@ def quantile_delta_mapping(
 
 if __name__ == "__main__":
 
+    # Track script execution time
+    start_time = time.time()
+    start_datetime = datetime.now()
+    print(f"\n{'='*60}")
+    print(f"Bias Correction Script Started")
+    print(f"Start time: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"{'='*60}\n")
+
     # check if SHP_MASK is defined
     if SHP_MASK is None:
         shpfile = None
@@ -408,7 +418,8 @@ if __name__ == "__main__":
                     if hst_return_bool:
 
                         hst_ba = qdm_arrays[0]
-                        hst_ba = hst_ba.compute()
+                        with ProgressBar():
+                            hst_ba = hst_ba.compute()
 
                         for yr in range(hist_years[0], hist_years[1] + 1):
                             fn = out_dir.joinpath("%s_%s_%d.nc" % (var, gcm, yr))
@@ -418,15 +429,36 @@ if __name__ == "__main__":
                             export_ds.to_netcdf(fn, engine="h5netcdf")
                         del hst_ba
 
-                sim_ba = qdm_arrays[-1]
-                sim_ba = sim_ba.compute()
+                    sim_ba = qdm_arrays[-1]
+                    with ProgressBar():
+                        sim_ba = sim_ba.compute()
 
-                for yr in range(sim_year[0], sim_year[1] + 1):
+                    for yr in range(sim_year[0], sim_year[1] + 1):
 
-                    fn = out_dir.joinpath("%s_%s_%d.nc" % (var, gcm, yr))
-                    yr_slice = slice(str(yr), str(yr))
-                    export_ds = sim_ba.sel(time=yr_slice)
-                    export_ds = export_ds.astype("float32")
-                    export_ds.to_netcdf(fn, engine="h5netcdf")
+                        fn = out_dir.joinpath("%s_%s_%d.nc" % (var, gcm, yr))
+                        yr_slice = slice(str(yr), str(yr))
+                        export_ds = sim_ba.sel(time=yr_slice)
+                        export_ds = export_ds.astype("float32")
+                        export_ds.to_netcdf(fn, engine="h5netcdf")
 
-                pbar.update()
+                    pbar.update()
+
+    # Calculate and display elapsed time
+    end_time = time.time()
+    end_datetime = datetime.now()
+    elapsed_seconds = end_time - start_time
+    
+    hours = int(elapsed_seconds // 3600)
+    minutes = int((elapsed_seconds % 3600) // 60)
+    seconds = int(elapsed_seconds % 60)
+    
+    print(f"\n{'='*60}")
+    print(f"Bias Correction Completed!")
+    print(f"End time: {end_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    if hours > 0:
+        print(f"Total elapsed time: {hours}h {minutes}m {seconds}s")
+    elif minutes > 0:
+        print(f"Total elapsed time: {minutes}m {seconds}s")
+    else:
+        print(f"Total elapsed time: {seconds}s")
+    print(f"{'='*60}\n")

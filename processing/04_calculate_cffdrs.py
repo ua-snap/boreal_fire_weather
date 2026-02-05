@@ -2,14 +2,14 @@ from tqdm import tqdm
 import xarray as xr
 import numpy as np
 from pathlib import Path
+from datetime import datetime
+import time
 
 from config import ERA5_PROCESSED, OUT_DIR, gcm_list, era5_years, hist_years, sim_periods
 from utils import *
 
 import warnings
-
 warnings.filterwarnings('ignore')
-
 
 
 # ----------------------------------------------------------------------------
@@ -454,6 +454,14 @@ def cffdrs_calc(
 
 if __name__ == "__main__":
 
+    # Track script execution time
+    start_time = time.time()
+    start_datetime = datetime.now()
+    print(f"\n{'='*60}")
+    print(f"CFFDRS Calculation Script Started")
+    print(f"Start time: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"{'='*60}\n")
+
     era5_dir = Path(ERA5_PROCESSED)
 
     era5_cffdrs_dir = Path(OUT_DIR).joinpath("cffdrs", "era5")
@@ -468,8 +476,9 @@ if __name__ == "__main__":
     era5_year_range = range(era5_years[0],era5_years[1]+1)
     cmip6_year_range = range(hist_years[0],sim_periods[-1][1]+1)
 
-    with tqdm(total=len(era5_year_range)) as pbar:
+    with tqdm(total=len(era5_year_range), desc="Processing ERA5") as pbar:
         for year in era5_year_range:
+            pbar.set_postfix({"year": year})
 
             # Get file list of era5 variables for a single year ...
             filelist = list(era5_dir.glob('*%d*nc' % year))
@@ -513,11 +522,12 @@ if __name__ == "__main__":
 
             pbar.update()
 
-    with tqdm(total=len(cmip6_year_range)*len(gcm_list)) as pbar:
+    with tqdm(total=len(cmip6_year_range)*len(gcm_list), desc="Processing GCMs") as pbar:
         for gcm in gcm_list:
             cmip6_dir_i = Path(OUT_DIR).joinpath("bias_corrected", gcm)
 
             for yr in cmip6_year_range:
+                pbar.set_postfix({"GCM": gcm, "year": yr})
 
                 # Get file list of era5 variables for a single year ...
                 filelist = list(cmip6_dir_i.glob('*%d*nc' % yr))
@@ -563,5 +573,23 @@ if __name__ == "__main__":
 
                 pbar.update() # Update progress bar
 
-        print('\n\nFinished calculating CFFDRS!\n\n')
+    # Calculate and display elapsed time
+    end_time = time.time()
+    end_datetime = datetime.now()
+    elapsed_seconds = end_time - start_time
+    
+    hours = int(elapsed_seconds // 3600)
+    minutes = int((elapsed_seconds % 3600) // 60)
+    seconds = int(elapsed_seconds % 60)
+    
+    print(f"\n{'='*60}")
+    print(f"CFFDRS Calculation Completed!")
+    print(f"End time: {end_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    if hours > 0:
+        print(f"Total elapsed time: {hours}h {minutes}m {seconds}s")
+    elif minutes > 0:
+        print(f"Total elapsed time: {minutes}m {seconds}s")
+    else:
+        print(f"Total elapsed time: {seconds}s")
+    print(f"{'='*60}\n")
 
