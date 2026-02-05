@@ -1,0 +1,16 @@
+name: cffdrs
+channels:
+  - defaults
+dependencies:
+  - black
+  - dask
+  - geopandas
+  - h5netcdf
+  - numpy
+  - python=3.11
+  - rasterio
+  - shapely
+  - tqdm
+  - xarray
+  - xclim
+prefix: /home/jdpaul3/miniconda3/envs/cffdrs

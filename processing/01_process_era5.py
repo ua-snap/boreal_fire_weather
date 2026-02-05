@@ -179,7 +179,7 @@ def process_era5(src: str, dask_load=False) -> xr.Dataset:
 if __name__ == "__main__":
 
     era5_dir = Path(DATA_DIR) / "era5"
-    out_dir = Path(OUT_DIR) / "era5"
+    out_dir = Path(OUT_DIR) / "processed" / "era5"
 
     start_year, end_year = era5_years
     year_range = range(start_year, end_year + 1)

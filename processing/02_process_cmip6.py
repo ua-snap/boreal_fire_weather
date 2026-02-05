@@ -134,7 +134,7 @@ if __name__ == "__main__":
     with tqdm(total=N) as pbar:
         for gcm in gcm_list:
             cmip6_dir = Path(DATA_DIR).joinpath(gcm)
-            out_dir = Path(OUT_DIR).joinpath(gcm)
+            out_dir = Path(OUT_DIR).joinpath("processed", gcm)
             if not out_dir.exists():
                 out_dir.mkdir(parents=True, exist_ok=True)
             for var in metvars:

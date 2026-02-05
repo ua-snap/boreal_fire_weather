@@ -324,7 +324,7 @@ if __name__ == "__main__":
     else:
         shpfile = Path(SHP_MASK)
 
-    era5_dir = Path(OUT_DIR) / "era5"
+    era5_dir = Path(OUT_DIR) / "processed" / "era5"
 
     oper = qdm["oper"]
     min_thresh = qdm["min_thresh"]
@@ -333,8 +333,8 @@ if __name__ == "__main__":
     N = len(gcm_list) * len(metvars) * len(sim_periods)
     with tqdm(total=N) as pbar:
         for gcm in gcm_list:
-            in_dir = Path(OUT_DIR).joinpath(gcm)
-            out_dir = Path(OUT_DIR).joinpath(gcm, "bias_corrected")
+            in_dir = Path(OUT_DIR).joinpath("processed", gcm)
+            out_dir = Path(OUT_DIR).joinpath("bias_corrected", gcm)
             if out_dir.exists() is False:
                 out_dir.mkdir(parents=True)
             for var in metvars:

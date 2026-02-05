@@ -32,3 +32,5 @@ export OUT_DIR=/path/for/output/files
 ### Bias correction
 
 ### CFFDRS calculation
+
+### References
