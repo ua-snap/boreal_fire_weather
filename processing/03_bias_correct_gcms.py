@@ -1,6 +1,7 @@
 from tqdm import tqdm
 import dask
 from dask.diagnostics import ProgressBar
+from dask.distributed import Client, LocalCluster, wait
 import xarray as xr
 import numpy as np
 import pandas as pd
@@ -170,6 +171,160 @@ def chunk_data_arrays(ref, hst, sim, frac=0.2):
     return (ref, hst, sim)
 
 
+def load_and_preprocess_ref_hst(
+    ref_src: list,
+    hst_src: list,
+    dask_load=True,
+    **kwargs
+) -> tuple:
+    """
+    Load and preprocess reference and historical datasets.
+    Returns preprocessed DataArrays ready for persistence.
+    """
+    # Read in datasets
+    ref = xr.open_mfdataset(
+        ref_src,
+        engine="h5netcdf",
+        parallel=dask_load,
+        chunks={"time": 1095, "lat": 89, "lon": 142},
+    )
+
+    hst = xr.open_mfdataset(
+        hst_src,
+        engine="h5netcdf",
+        parallel=dask_load,
+        chunks={"time": 1095, "lat": 89, "lon": 142},
+    )
+
+    # Check variable names match
+    var = check_var_names(ref, hst)
+
+    # Convert to DataArrays
+    ref = ref[var]
+    hst = hst[var]
+
+    # Check units match
+    same_units(ref, hst)
+
+    # Align time coordinates
+    if not ref.time.equals(hst.time):
+        hst = hst.reindex(time=ref.time, method="nearest", tolerance=pd.Timedelta("12h"))
+    
+    ref = ref.assign_coords(time=ref.time.dt.floor("D"))
+    hst = hst.assign_coords(time=hst.time.dt.floor("D"))
+
+    # Regrid if needed
+    ref, hst, _ = dimcheck_and_regrid(ref, hst, hst, **get_kwargs(("regrid",), kwargs))
+
+    # Apply spatial mask
+    ref, hst, _ = mask_arrays(ref, hst, hst, **get_kwargs(("mask",), kwargs))
+
+    # Rechunk for QDM (time dimension must not be split)
+    if dask_load:
+        axes = get_geoaxes(ref)
+        ref = ref.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+        hst = hst.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+
+    # Apply jittering if threshold specified
+    min_thresh = kwargs.get('min_thresh')
+    if min_thresh is not None:
+        thresh_str = "%0.3f %s" % (min_thresh, ref.attrs["units"])
+        ref = jitter_under_thresh(ref, thresh_str)
+        hst = jitter_under_thresh(hst, thresh_str)
+
+    return (ref, hst)
+
+
+def quantile_delta_mapping_with_persisted(
+    ref: xr.DataArray,
+    hst: xr.DataArray,
+    sim_src: list,
+    min_thresh: float = None,
+    return_hst=False,
+    dask_load=True,
+    dask_return=False,
+    **kwargs
+) -> tuple:
+    """
+    Perform QDM using pre-loaded and persisted ref/hst datasets.
+    Only loads sim data from files.
+    """
+    # Load sim dataset
+    sim = xr.open_mfdataset(
+        sim_src,
+        engine="h5netcdf",
+        parallel=dask_load,
+        chunks={"time": 1095, "lat": 89, "lon": 142},
+    )
+
+    # Get variable name and convert to DataArray
+    var = get_var_names(sim)[0]
+    sim = sim[var]
+
+    # Check units
+    same_units(ref, sim)
+
+    # Align time
+    sim = sim.assign_coords(time=sim.time.dt.floor("D"))
+
+    # Regrid sim to match ref/hst
+    _, _, sim = dimcheck_and_regrid(ref, hst, sim, **get_kwargs(("regrid",), kwargs))
+
+    # Apply spatial mask to sim
+    _, _, sim = mask_arrays(ref, hst, sim, **get_kwargs(("mask",), kwargs))
+
+    # Rechunk sim
+    if dask_load:
+        axes = get_geoaxes(ref)
+        sim = sim.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+
+    # Apply jittering to sim
+    if min_thresh is not None:
+        thresh_str = "%0.3f %s" % (min_thresh, ref.attrs["units"])
+        sim = jitter_under_thresh(sim, thresh_str)
+
+    # Training step (ref and hst are already in memory as persisted arrays)
+    QDM = QuantileDeltaMapping.train(
+        ref, hst, **get_kwargs(("group", "nquantiles", "kind"), kwargs)
+    )
+
+    # Declare empty tuple to store output
+    return_ds = ()
+
+    # Only do historical bias corrections if return_hist=True
+    if return_hst:
+        # Bias correcting step for hst time period
+        hst_ba = QDM.adjust(hst, **get_kwargs(("interp", "extrapolation"), kwargs))
+
+        # Set all jittered values back to 0
+        if min_thresh is not None:
+            hst_ba = xr.where(hst_ba > min_thresh, hst_ba, 0.0)
+
+        hst_ba = hst_ba.rename(var)
+        hst_ba = hst_ba.assign_attrs(hst.attrs)
+
+        return_ds = return_ds + tuple([hst_ba])
+
+    # Bias correcting step for projected/simulated time period
+    sim_ba = QDM.adjust(sim, **get_kwargs(("interp", "extrapolation"), kwargs))
+
+    # Set all jittered values back to 0
+    if min_thresh is not None:
+        sim_ba = xr.where(sim_ba > min_thresh, sim_ba, 0.0)
+
+    sim_ba = sim_ba.rename(var)
+    sim_ba = sim_ba.assign_attrs(sim.attrs)
+
+    # Add bias adjusted data array to the export tuple
+    return_ds = return_ds + tuple([sim_ba])
+
+    # Export results
+    if (not dask_return) & (dask.is_dask_collection(return_ds[0])):
+        return tuple([x.compute() for x in return_ds])
+    else:
+        return return_ds
+
+
 def quantile_delta_mapping(
     ref_src: list,
     hst_src: list,
@@ -212,25 +367,26 @@ def quantile_delta_mapping(
 
     # Read in datasets for reference time period (ref), historical overlap of
     # gcm (hst), and future simulation/projection period (sim)
+    # Optimized chunking: ~3-year time blocks, balanced spatial chunks (~40-60 chunks total)
     ref = xr.open_mfdataset(
         ref_src,
         engine="h5netcdf",
         parallel=dask_load,
-        chunks={"time": 365, "lon": -1, "lat": -1},
+        chunks={"time": 1095, "lat": 89, "lon": 142},
     )
 
     hst = xr.open_mfdataset(
         hst_src,
         engine="h5netcdf",
         parallel=dask_load,
-        chunks={"time": 365, "lon": -1, "lat": -1},
+        chunks={"time": 1095, "lat": 89, "lon": 142},
     )
 
     sim = xr.open_mfdataset(
         sim_src,
         engine="h5netcdf",
         parallel=dask_load,
-        chunks={"time": 365, "lon": -1, "lat": -1},
+        chunks={"time": 1095, "lat": 89, "lon": 142},
     )
 
     # Check to make sure the variable (e.g. precip) is the same for each dataset
@@ -265,12 +421,13 @@ def quantile_delta_mapping(
     # Apply spatial mask, does nothing if 'mask=None'
     ref, hst, sim = mask_arrays(ref, hst, sim, **get_kwargs(("mask",), kwargs))
 
-    # If working with dask arrays, set chunks so time dimension is not broken up
-    # This is a requirement for using sdba.QuantileDeltaMapping
+    # Rechunk to ensure time dimension is not split (required for QDM)
+    # Keep spatial chunks but consolidate time dimension
     if dask_load:
-        ref, hst, sim = chunk_data_arrays(
-            ref, hst, sim, **get_kwargs(("frac",), kwargs)
-        )
+        axes = get_geoaxes(ref)
+        ref = ref.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+        hst = hst.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+        sim = sim.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
 
     # Apply uniform random variable if value is less then preset amount. Mainly
     # used for precip (e.g., 0.5 mm/day)
@@ -342,6 +499,20 @@ if __name__ == "__main__":
     print(f"Start time: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
     print(f"{'='*60}\n")
 
+    # Initialize Dask distributed client for parallel processing
+    print("Initializing Dask distributed client...")
+    cluster = LocalCluster(
+        n_workers=8,              # Adjust based on available cores
+        threads_per_worker=2,     # Total threads = 16
+        memory_limit='15GB',      # Per worker (8 × 15GB = 120GB total)
+        processes=True,           # Use processes for better parallelism
+        dashboard_address=None    # Disable dashboard for compute node
+    )
+    client = Client(cluster)
+    print(f"Workers: {len(client.scheduler_info()['workers'])}")
+    print(f"Total threads: {sum(w['nthreads'] for w in client.scheduler_info()['workers'].values())}")
+    print(f"{'='*60}\n")
+
     # check if SHP_MASK is defined
     if SHP_MASK is None:
         shpfile = None
@@ -362,15 +533,43 @@ if __name__ == "__main__":
             if out_dir.exists() is False:
                 out_dir.mkdir(parents=True)
             for var in metvars:
+                # Load and persist ref and hst ONCE per variable (reused across all sim_periods)
+                print(f"\nLoading reference and historical data for {gcm}/{var}...")
+                ref_src = [
+                    list(era5_dir.glob("%s*%d*" % (var, i)))[0]
+                    for i in range(hist_years[0], hist_years[1] + 1)
+                ]
+                hst_src = [
+                    list(in_dir.glob("%s*%d*" % (var, i)))[0]
+                    for i in range(hist_years[0], hist_years[1] + 1)
+                ]
+                
+                # Load ref and hst with preprocessing
+                qdm_kwargs = dict(
+                    dask_load=True,
+                    regrid="gcm2era",
+                    mask=shpfile,
+                    kind=oper[var],
+                    nquantiles=quantile_vals,
+                    group="time.month",
+                    min_thresh=min_thresh[var],
+                    interp="linear",
+                )
+                
+                # Call function to get preprocessed ref and hst (shared setup)
+                ref_preprocessed, hst_preprocessed = load_and_preprocess_ref_hst(
+                    ref_src, hst_src, **qdm_kwargs
+                )
+                
+                # Persist in distributed memory (loads data, returns pointer)
+                print(f"Persisting {var} data in distributed memory...")
+                ref_preprocessed = ref_preprocessed.persist()
+                hst_preprocessed = hst_preprocessed.persist()
+                wait([ref_preprocessed, hst_preprocessed])  # Block until loaded
+                print(f"Data loaded and ready for processing\n")
+                
+                # Now loop over simulation periods, reusing persisted ref/hst
                 for sim_year in sim_periods:
-                    ref_src = [
-                        list(era5_dir.glob("%s*%d*" % (var, i)))[0]
-                        for i in range(hist_years[0], hist_years[1] + 1)
-                    ]
-                    hst_src = [
-                        list(in_dir.glob("%s*%d*" % (var, i)))[0]
-                        for i in range(hist_years[0], hist_years[1] + 1)
-                    ]
                     sim_src = [
                         list(in_dir.glob("%s*%d*" % (var, i)))[0]
                         for i in range(sim_year[0], sim_year[1] + 1)
@@ -381,20 +580,14 @@ if __name__ == "__main__":
                     else:
                         hst_return_bool = False
 
-                    qdm_arrays = quantile_delta_mapping(
-                        ref_src,
-                        hst_src,
+                    # Use persisted ref/hst with new sim data
+                    qdm_arrays = quantile_delta_mapping_with_persisted(
+                        ref_preprocessed,
+                        hst_preprocessed,
                         sim_src,
-                        dask_load=True,
-                        regrid="gcm2era",
-                        mask=shpfile,
-                        kind=oper[var],
-                        nquantiles=quantile_vals,
-                        group="time.month",
-                        min_thresh=min_thresh[var],
                         return_hst=hst_return_bool,
-                        interp="linear",
                         dask_return=True,
+                        **qdm_kwargs
                     )
 
                     if hst_return_bool:
@@ -434,6 +627,14 @@ if __name__ == "__main__":
                         export_ds.to_netcdf(fn, engine="h5netcdf", encoding=encoding)
 
                     pbar.update()
+                
+                # Clean up persisted data after all sim_periods for this variable
+                del ref_preprocessed, hst_preprocessed
+
+    # Close Dask client
+    print("\nClosing Dask client...")
+    client.close()
+    cluster.close()
 
     # Calculate and display elapsed time
     end_time = time.time()
