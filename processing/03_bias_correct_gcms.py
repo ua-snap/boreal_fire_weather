@@ -22,6 +22,11 @@ warnings.filterwarnings(
     "ignore", message="All-NaN slice encountered in interp_on_quantiles"
 )
 
+# Suppress large graph size warnings from distributed client
+warnings.filterwarnings(
+    "ignore", message="Sending large graph of size"
+)
+
 # Suppress dask warnings on chunk size
 dask.config.set({"array.slicing.split_large_chunks": False})
 
