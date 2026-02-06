@@ -12,7 +12,7 @@ from xclim.core.units import str2pint
 from xclim.sdba import QuantileDeltaMapping
 from xclim.sdba.processing import jitter_under_thresh
 
-from config import ERA5_PROCESSED, CMIP6_PROCESSED, OUT_DIR, SHP_MASK, gcm_list, metvars, hist_years, sim_periods, qdm
+from config import ERA5_PROCESSED, CMIP6_PROCESSED, OUT_DIR, SHP_MASK, CLIP_HURSMIN, gcm_list, metvars, hist_years, sim_periods, qdm
 from utils import *
 
 import warnings
@@ -36,6 +36,28 @@ def same_vals(x) -> bool:
     Check if all values in an interable object are equal to one another.
     """
     return x.count(x[0]) == len(x)
+
+
+def clip_hursmin(data_array: xr.DataArray, var_name: str) -> xr.DataArray:
+    """
+    Clip hursmin values to valid range [0.0, 100.0].
+    Values below 0 are set to 0, values above 100 are set to 100.
+    Only applies if CLIP_HURSMIN is True and variable is 'hursmin'.
+    
+    Parameters
+    ----------
+    data_array: xarray.DataArray
+        The data array to clip
+    var_name: str
+        The variable name to check if clipping should be applied
+    
+    Returns
+    -------
+    xarray.DataArray with clipped values if applicable
+    """
+    if CLIP_HURSMIN and var_name == "hursmin":
+        return data_array.clip(min=0.0, max=100.0)
+    return data_array
 
 
 def check_var_names(*args):
@@ -600,6 +622,9 @@ if __name__ == "__main__":
                         hst_ba = qdm_arrays[0]
                         with ProgressBar():
                             hst_ba = hst_ba.compute()
+                        
+                        # Clip hursmin to valid range [0.0, 100.0]
+                        hst_ba = clip_hursmin(hst_ba, var)
 
                         for yr in range(hist_years[0], hist_years[1] + 1):
                             fn = out_dir.joinpath("%s_%s_%d.nc" % (var, gcm, yr))
@@ -617,6 +642,9 @@ if __name__ == "__main__":
                     sim_ba = qdm_arrays[-1]
                     with ProgressBar():
                         sim_ba = sim_ba.compute()
+                    
+                    # Clip hursmin to valid range [0.0, 100.0]
+                    sim_ba = clip_hursmin(sim_ba, var)
 
                     for yr in range(sim_year[0], sim_year[1] + 1):
 

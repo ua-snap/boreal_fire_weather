@@ -14,6 +14,10 @@ OUT_DIR = os.getenv("OUT_DIR")
 # Optional spatial mask
 SHP_MASK = os.getenv("SHP_MASK")
 
+# Clip hursmin to valid range [0.0, 100.0]
+# set to FALSE for QC & comparison with older versions of the dataset
+CLIP_HURSMIN = os.getenv("CLIP_HURSMIN", "TRUE").upper() == "TRUE"
+
 era5_years = (1979, 2020)
 cmip6_years = (1979, 2099)
 hist_years = (1980, 2009)

@@ -497,6 +497,7 @@ if __name__ == "__main__":
             cffdrs_vals = cffdrs_calc(tas,pr,sfcWind,hurs,mon)
 
             # Put CFFDRS results in xarray dataset
+            # do not include dsr in output dataset since it's not used in any of the analyses
             cffdrs_ds = xr.Dataset(
                 data_vars={
                     'ffmc': (['time','lat','lon'],cffdrs_vals['ffmc']),
