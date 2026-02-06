@@ -282,23 +282,6 @@ def quantile_delta_mapping(
         hst = jitter_under_thresh(hst, thresh_str)
         sim = jitter_under_thresh(sim, thresh_str)
 
-    # Ensure all underlying numpy arrays are writable before QDM
-    # This prevents "assignment destination is read-only" errors in xsdba
-    ref.values.setflags(write=True)
-    hst.values.setflags(write=True)
-    sim.values.setflags(write=True)
-    
-    # Also ensure coordinate arrays are writable  
-    for coord in ref.coords:
-        if hasattr(ref[coord].values, 'setflags'):
-            ref[coord].values.setflags(write=True)
-    for coord in hst.coords:
-        if hasattr(hst[coord].values, 'setflags'):
-            hst[coord].values.setflags(write=True)
-    for coord in sim.coords:
-        if hasattr(sim[coord].values, 'setflags'):
-            sim[coord].values.setflags(write=True)
-
     # Training step in Quantile delta mapping
     QDM = QuantileDeltaMapping.train(
         ref, hst, **get_kwargs(("group", "nquantiles", "kind"), kwargs)
@@ -370,7 +353,6 @@ if __name__ == "__main__":
     oper = qdm["oper"]
     min_thresh = qdm["min_thresh"]
     quantile_vals = np.array(qdm["quantile_vals"], dtype=np.float32)
-    quantile_vals.flags.writeable = True  # Ensure array is writeable
 
     N = len(gcm_list) * len(metvars) * len(sim_periods)
     with tqdm(total=N) as pbar:
