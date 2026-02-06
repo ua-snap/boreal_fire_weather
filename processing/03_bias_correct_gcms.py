@@ -630,6 +630,8 @@ if __name__ == "__main__":
                             fn = out_dir.joinpath("%s_%s_%d.nc" % (var, gcm, yr))
                             yr_slice = slice(str(yr), str(yr))
                             export_ds = hst_ba.sel(time=yr_slice)
+                            # Transpose to match expected dimension order (time, lat, lon)
+                            export_ds = export_ds.transpose("time", "lat", "lon")
                             export_ds = export_ds.astype("float32")
                             # Use float64 for time to avoid precision loss with timestamps
                             encoding = {
@@ -651,6 +653,8 @@ if __name__ == "__main__":
                         fn = out_dir.joinpath("%s_%s_%d.nc" % (var, gcm, yr))
                         yr_slice = slice(str(yr), str(yr))
                         export_ds = sim_ba.sel(time=yr_slice)
+                        # Transpose to match expected dimension order (time, lat, lon)
+                        export_ds = export_ds.transpose("time", "lat", "lon")
                         export_ds = export_ds.astype("float32")
                         # Use float64 for time to avoid precision loss with timestamps
                         encoding = {
