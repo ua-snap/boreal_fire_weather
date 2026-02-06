@@ -408,7 +408,12 @@ if __name__ == "__main__":
                             yr_slice = slice(str(yr), str(yr))
                             export_ds = hst_ba.sel(time=yr_slice)
                             export_ds = export_ds.astype("float32")
-                            export_ds.to_netcdf(fn, engine="h5netcdf")
+                            # Use float64 for time to avoid precision loss with timestamps
+                            encoding = {
+                                export_ds.name: {"dtype": "float32"},
+                                "time": {"dtype": "float64"}
+                            }
+                            export_ds.to_netcdf(fn, engine="h5netcdf", encoding=encoding)
                         del hst_ba
 
                     sim_ba = qdm_arrays[-1]
@@ -421,7 +426,12 @@ if __name__ == "__main__":
                         yr_slice = slice(str(yr), str(yr))
                         export_ds = sim_ba.sel(time=yr_slice)
                         export_ds = export_ds.astype("float32")
-                        export_ds.to_netcdf(fn, engine="h5netcdf")
+                        # Use float64 for time to avoid precision loss with timestamps
+                        encoding = {
+                            export_ds.name: {"dtype": "float32"},
+                            "time": {"dtype": "float64"}
+                        }
+                        export_ds.to_netcdf(fn, engine="h5netcdf", encoding=encoding)
 
                     pbar.update()
 
