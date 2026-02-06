@@ -328,5 +328,5 @@ def mask_from_shp(shpfile: gpd.GeoDataFrame, grd_coords, **kwargs) -> np.ndarray
         mask_vct = shpfile
     x, y = coords_to_mesh(grd_coords, **kwargs)
     mask_geom = mask_vct.dissolve().geometry.item()
-    mask_grd = shapely.contains(mask_geom, x, y)
+    mask_grd = shapely.contains_xy(mask_geom, x, y)
     return mask_grd
