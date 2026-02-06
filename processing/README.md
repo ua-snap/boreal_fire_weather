@@ -124,6 +124,24 @@ Calculate Canadian Forest Fire Danger Rating System (CFFDRS) indices:
 Calculated for both ERA5 and bias-corrected CMIP6 data.
 - Output: `OUT_DIR/cffdrs/era5/` and `OUT_DIR/cffdrs/{gcm}/`
 
+### Quality Control
+
+To validate that this pipeline produces results identical to the reference version ([Zenodo v7783759](https://zenodo.org/records/7783759)), use the QC script in the `qc/` directory. Run the pipeline with `CLIP_HURSMIN=FALSE` to disable humidity clipping for comparison purposes:
+
+```bash
+export CLIP_HURSMIN=FALSE
+python 03_bias_correct_gcms.py
+python 04_calculate_cffdrs.py
+```
+
+Then compare outputs using:
+```bash
+cd qc/
+python compare_datasets.py /path/to/reference/data /path/to/new/data
+```
+
+See `qc/README.md` for detailed usage instructions.
+
 ### References
 
 > Note that the set of functions performing the CFFDRS calculations are described in Van Wagner 1985 and 1987. Variable names were kept the same as in the original functions. Furthermore, in this set of function equation numbers also directly match up to those described in the original Fortran code. We also used `cffdrs` R package to help guide the creation and use of this script.
