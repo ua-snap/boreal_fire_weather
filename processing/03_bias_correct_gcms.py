@@ -12,7 +12,19 @@ from xclim.core.units import str2pint
 from xclim.sdba import QuantileDeltaMapping
 from xclim.sdba.processing import jitter_under_thresh
 
-from config import ERA5_PROCESSED, CMIP6_PROCESSED, OUT_DIR, SHP_MASK, CLIP_HURSMIN, gcm_list, metvars, hist_years, sim_periods, qdm
+from config import (
+    ERA5_PROCESSED,
+    CMIP6_PROCESSED,
+    OUT_DIR,
+    SHP_MASK,
+    CLIP_HURSMIN,
+    LEGACY_MODE,
+    gcm_list,
+    metvars,
+    hist_years,
+    sim_periods,
+    qdm,
+)
 from utils import *
 
 import warnings
@@ -23,9 +35,7 @@ warnings.filterwarnings(
 )
 
 # Suppress large graph size warnings from distributed client
-warnings.filterwarnings(
-    "ignore", message="Sending large graph of size"
-)
+warnings.filterwarnings("ignore", message="Sending large graph of size")
 
 # Suppress dask warnings on chunk size
 dask.config.set({"array.slicing.split_large_chunks": False})
@@ -43,14 +53,14 @@ def clip_hursmin(data_array: xr.DataArray, var_name: str) -> xr.DataArray:
     Clip hursmin values to valid range [0.0, 100.0].
     Values below 0 are set to 0, values above 100 are set to 100.
     Only applies if CLIP_HURSMIN is True and variable is 'hursmin'.
-    
+
     Parameters
     ----------
     data_array: xarray.DataArray
         The data array to clip
     var_name: str
         The variable name to check if clipping should be applied
-    
+
     Returns
     -------
     xarray.DataArray with clipped values if applicable
@@ -199,10 +209,7 @@ def chunk_data_arrays(ref, hst, sim, frac=0.2):
 
 
 def load_and_preprocess_ref_hst(
-    ref_src: list,
-    hst_src: list,
-    dask_load=True,
-    **kwargs
+    ref_src: list, hst_src: list, dask_load=True, **kwargs
 ) -> tuple:
     """
     Load and preprocess reference and historical datasets.
@@ -235,8 +242,10 @@ def load_and_preprocess_ref_hst(
 
     # Align time coordinates
     if not ref.time.equals(hst.time):
-        hst = hst.reindex(time=ref.time, method="nearest", tolerance=pd.Timedelta("12h"))
-    
+        hst = hst.reindex(
+            time=ref.time, method="nearest", tolerance=pd.Timedelta("12h")
+        )
+
     ref = ref.assign_coords(time=ref.time.dt.floor("D"))
     hst = hst.assign_coords(time=hst.time.dt.floor("D"))
 
@@ -253,7 +262,7 @@ def load_and_preprocess_ref_hst(
         hst = hst.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
 
     # Apply jittering if threshold specified
-    min_thresh = kwargs.get('min_thresh')
+    min_thresh = kwargs.get("min_thresh")
     if min_thresh is not None:
         thresh_str = "%0.3f %s" % (min_thresh, ref.attrs["units"])
         ref = jitter_under_thresh(ref, thresh_str)
@@ -270,7 +279,7 @@ def quantile_delta_mapping_with_persisted(
     return_hst=False,
     dask_load=True,
     dask_return=False,
-    **kwargs
+    **kwargs,
 ) -> tuple:
     """
     Perform QDM using pre-loaded and persisted ref/hst datasets.
@@ -360,7 +369,7 @@ def quantile_delta_mapping(
     return_hst=False,
     dask_load=False,
     dask_return=False,
-    **kwargs
+    **kwargs,
 ) -> tuple:
     """
     Description
@@ -429,15 +438,19 @@ def quantile_delta_mapping(
 
     # Align time coordinates - ensure all datasets use consistent time encoding
     # This handles cases where time units have different offsets (e.g., midnight vs noon)
-    # Reindex hst to match ref's exact time coordinates (same dates)
-    if not ref.time.equals(hst.time):
-        hst = hst.reindex(time=ref.time, method="nearest", tolerance=pd.Timedelta("12h"))
-    
-    # For sim (which may be a different time period), normalize time-of-day to match ref
-    # by flooring all times to the start of the day
-    ref = ref.assign_coords(time=ref.time.dt.floor("D"))
-    hst = hst.assign_coords(time=hst.time.dt.floor("D"))
-    sim = sim.assign_coords(time=sim.time.dt.floor("D"))
+    # Skip this in LEGACY_MODE to match original pipeline behavior
+    if not LEGACY_MODE:
+        # Reindex hst to match ref's exact time coordinates (same dates)
+        if not ref.time.equals(hst.time):
+            hst = hst.reindex(
+                time=ref.time, method="nearest", tolerance=pd.Timedelta("12h")
+            )
+
+        # For sim (which may be a different time period), normalize time-of-day to match ref
+        # by flooring all times to the start of the day
+        ref = ref.assign_coords(time=ref.time.dt.floor("D"))
+        hst = hst.assign_coords(time=hst.time.dt.floor("D"))
+        sim = sim.assign_coords(time=sim.time.dt.floor("D"))
 
     # Do regridding so all data arrays are aligned and have the same shape and
     # dimensions
@@ -524,20 +537,28 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print(f"Bias Correction Script Started")
     print(f"Start time: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    if LEGACY_MODE:
+        print(f"⚠️  LEGACY MODE ENABLED - Skipping time alignment and transpose")
+        print(f"   (Reproduces original pipeline behavior for testing)")
+    if not CLIP_HURSMIN:
+        print(f"⚠️  CLIP_HURSMIN DISABLED - Allowing hursmin values outside [0, 100]")
+        print(f"   (Use for comparison with older versions of the dataset)")
     print(f"{'='*60}\n")
 
     # Initialize Dask distributed client for parallel processing
     print("Initializing Dask distributed client...")
     cluster = LocalCluster(
-        n_workers=8,              # Adjust based on available cores
-        threads_per_worker=2,     # Total threads = 16
-        memory_limit='15GB',      # Per worker (8 × 15GB = 120GB total)
-        processes=True,           # Use processes for better parallelism
-        dashboard_address=None    # Disable dashboard for compute node
+        n_workers=8,  # Adjust based on available cores
+        threads_per_worker=2,  # Total threads = 16
+        memory_limit="15GB",  # Per worker (8 × 15GB = 120GB total)
+        processes=True,  # Use processes for better parallelism
+        dashboard_address=None,  # Disable dashboard for compute node
     )
     client = Client(cluster)
     print(f"Workers: {len(client.scheduler_info()['workers'])}")
-    print(f"Total threads: {sum(w['nthreads'] for w in client.scheduler_info()['workers'].values())}")
+    print(
+        f"Total threads: {sum(w['nthreads'] for w in client.scheduler_info()['workers'].values())}"
+    )
     print(f"{'='*60}\n")
 
     # check if SHP_MASK is defined
@@ -570,7 +591,7 @@ if __name__ == "__main__":
                     list(in_dir.glob("%s*%d*" % (var, i)))[0]
                     for i in range(hist_years[0], hist_years[1] + 1)
                 ]
-                
+
                 # Load ref and hst with preprocessing
                 qdm_kwargs = dict(
                     dask_load=True,
@@ -582,19 +603,19 @@ if __name__ == "__main__":
                     min_thresh=min_thresh[var],
                     interp="linear",
                 )
-                
+
                 # Call function to get preprocessed ref and hst (shared setup)
                 ref_preprocessed, hst_preprocessed = load_and_preprocess_ref_hst(
                     ref_src, hst_src, **qdm_kwargs
                 )
-                
+
                 # Persist in distributed memory (loads data, returns pointer)
                 print(f"Persisting {var} data in distributed memory...")
                 ref_preprocessed = ref_preprocessed.persist()
                 hst_preprocessed = hst_preprocessed.persist()
                 wait([ref_preprocessed, hst_preprocessed])  # Block until loaded
                 print(f"Data loaded and ready for processing\n")
-                
+
                 # Now loop over simulation periods, reusing persisted ref/hst
                 for sim_year in sim_periods:
                     sim_src = [
@@ -614,7 +635,7 @@ if __name__ == "__main__":
                         sim_src,
                         return_hst=hst_return_bool,
                         dask_return=True,
-                        **qdm_kwargs
+                        **qdm_kwargs,
                     )
 
                     if hst_return_bool:
@@ -622,7 +643,7 @@ if __name__ == "__main__":
                         hst_ba = qdm_arrays[0]
                         with ProgressBar():
                             hst_ba = hst_ba.compute()
-                        
+
                         # Clip hursmin to valid range [0.0, 100.0]
                         hst_ba = clip_hursmin(hst_ba, var)
 
@@ -631,20 +652,24 @@ if __name__ == "__main__":
                             yr_slice = slice(str(yr), str(yr))
                             export_ds = hst_ba.sel(time=yr_slice)
                             # Transpose to match expected dimension order (time, lat, lon)
-                            export_ds = export_ds.transpose("time", "lat", "lon")
+                            # Skip transpose in LEGACY_MODE to match original pipeline behavior
+                            if not LEGACY_MODE:
+                                export_ds = export_ds.transpose("time", "lat", "lon")
                             export_ds = export_ds.astype("float32")
                             # Use float64 for time to avoid precision loss with timestamps
                             encoding = {
                                 export_ds.name: {"dtype": "float32"},
-                                "time": {"dtype": "float64"}
+                                "time": {"dtype": "float64"},
                             }
-                            export_ds.to_netcdf(fn, engine="h5netcdf", encoding=encoding)
+                            export_ds.to_netcdf(
+                                fn, engine="h5netcdf", encoding=encoding
+                            )
                         del hst_ba
 
                     sim_ba = qdm_arrays[-1]
                     with ProgressBar():
                         sim_ba = sim_ba.compute()
-                    
+
                     # Clip hursmin to valid range [0.0, 100.0]
                     sim_ba = clip_hursmin(sim_ba, var)
 
@@ -654,17 +679,19 @@ if __name__ == "__main__":
                         yr_slice = slice(str(yr), str(yr))
                         export_ds = sim_ba.sel(time=yr_slice)
                         # Transpose to match expected dimension order (time, lat, lon)
-                        export_ds = export_ds.transpose("time", "lat", "lon")
+                        # Skip transpose in LEGACY_MODE to match original pipeline behavior
+                        if not LEGACY_MODE:
+                            export_ds = export_ds.transpose("time", "lat", "lon")
                         export_ds = export_ds.astype("float32")
                         # Use float64 for time to avoid precision loss with timestamps
                         encoding = {
                             export_ds.name: {"dtype": "float32"},
-                            "time": {"dtype": "float64"}
+                            "time": {"dtype": "float64"},
                         }
                         export_ds.to_netcdf(fn, engine="h5netcdf", encoding=encoding)
 
                     pbar.update()
-                
+
                 # Clean up persisted data after all sim_periods for this variable
                 del ref_preprocessed, hst_preprocessed
 
@@ -677,11 +704,11 @@ if __name__ == "__main__":
     end_time = time.time()
     end_datetime = datetime.now()
     elapsed_seconds = end_time - start_time
-    
+
     hours = int(elapsed_seconds // 3600)
     minutes = int((elapsed_seconds % 3600) // 60)
     seconds = int(elapsed_seconds % 60)
-    
+
     print(f"\n{'='*60}")
     print(f"Bias Correction Completed!")
     print(f"End time: {end_datetime.strftime('%Y-%m-%d %H:%M:%S')}")

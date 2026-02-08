@@ -18,6 +18,10 @@ SHP_MASK = os.getenv("SHP_MASK")
 # set to FALSE for QC & comparison with older versions of the dataset
 CLIP_HURSMIN = os.getenv("CLIP_HURSMIN", "TRUE").upper() == "TRUE"
 
+# Legacy mode - skips time alignment and dimension transpose to match old pipeline behavior
+# Set to TRUE to reproduce original pipeline results (for testing/comparison purposes only)
+LEGACY_MODE = os.getenv("LEGACY_MODE", "FALSE").upper() == "TRUE"
+
 era5_years = (1979, 2020)
 cmip6_years = (1979, 2099)
 hist_years = (1980, 2009)
