@@ -1,0 +1,474 @@
+================================================================================
+BOREAL FIRE WEATHER PIPELINE - QUALITY CONTROL
+================================================================================
+Reference directory: /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/original_dataset/bias_corrected
+New directory:       /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/output_shpmask/bias_corrected
+Variables to check:  All
+Max files per var:   20
+================================================================================
+
+Finding matching files...
+Found 1920 matching files
+
+Running QC on 80 files across 4 variable(s)...
+
+Variable: hursmin (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2043.nc
+  Variable 'hursmin': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2058.nc
+  Variable 'hursmin': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2073.nc
+  Variable 'hursmin': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2093.nc
+  Variable 'hursmin': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2051.nc
+  Variable 'hursmin': Values differ
+    Max difference: 2.32e+01
+    Mean difference: 2.55e-02
+    Number of different values: 2130307/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2065.nc
+  Variable 'hursmin': Values differ
+    Max difference: 2.59e+01
+    Mean difference: 2.72e-02
+    Number of different values: 2148392/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2071.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.19e+01
+    Mean difference: 2.74e-02
+    Number of different values: 2130138/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2093.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.50e+01
+    Mean difference: 2.83e-02
+    Number of different values: 2138582/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2003.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.50e+01
+    Mean difference: 2.57e-02
+    Number of different values: 2166274/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2025.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.50e+01
+    Mean difference: 2.44e-02
+    Number of different values: 2126837/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2027.nc
+  Variable 'hursmin': Values differ
+    Max difference: 7.74e+00
+    Mean difference: 2.47e-02
+    Number of different values: 2142465/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2031.nc
+  Variable 'hursmin': Values differ
+    Max difference: 2.34e+01
+    Mean difference: 2.70e-02
+    Number of different values: 2163438/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2050.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.34e+01
+    Mean difference: 2.56e-02
+    Number of different values: 2156096/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2053.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.41e+01
+    Mean difference: 2.46e-02
+    Number of different values: 2143769/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2069.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.22e+01
+    Mean difference: 2.68e-02
+    Number of different values: 2102061/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_1981.nc
+  Variable 'hursmin': Values differ
+    Max difference: 9.66e+00
+    Mean difference: 3.39e-02
+    Number of different values: 2147622/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_1994.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.04e+01
+    Mean difference: 3.50e-02
+    Number of different values: 2135500/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2051.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.40e+01
+    Mean difference: 3.97e-02
+    Number of different values: 2136958/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2068.nc
+  Variable 'hursmin': Values differ
+    Max difference: 8.96e+00
+    Mean difference: 3.84e-02
+    Number of different values: 2152605/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2087.nc
+  Variable 'hursmin': Values differ
+    Max difference: 2.35e+01
+    Mean difference: 4.21e-02
+    Number of different values: 2123784/4628930
+
+  Summary: 0 passed, 20 failed
+
+Variable: pr (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2011.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2025.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2045.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2072.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2081.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2097.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2099.nc
+  Variable 'pr': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2008.nc
+  Variable 'pr': Values differ
+    Max difference: 5.34e+00
+    Mean difference: 3.62e-03
+    Number of different values: 1273755/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2012.nc
+  Variable 'pr': Values differ
+    Max difference: 8.89e+00
+    Mean difference: 3.88e-03
+    Number of different values: 1287081/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2017.nc
+  Variable 'pr': Values differ
+    Max difference: 7.66e+00
+    Mean difference: 3.73e-03
+    Number of different values: 1306729/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2082.nc
+  Variable 'pr': Values differ
+    Max difference: 7.81e+00
+    Mean difference: 3.71e-03
+    Number of different values: 1503010/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2093.nc
+  Variable 'pr': Values differ
+    Max difference: 6.99e+00
+    Mean difference: 3.66e-03
+    Number of different values: 1553429/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2094.nc
+  Variable 'pr': Values differ
+    Max difference: 6.83e+00
+    Mean difference: 3.63e-03
+    Number of different values: 1442744/36967930
+
+  ✗ FAIL: pr_MPI-ESM1-2-HR_2021.nc
+  Variable 'pr': Values differ
+    Max difference: 6.70e+00
+    Mean difference: 3.58e-03
+    Number of different values: 1281352/36967930
+
+  ✗ FAIL: pr_MPI-ESM1-2-HR_2033.nc
+  Variable 'pr': Values differ
+    Max difference: 5.98e+00
+    Mean difference: 3.47e-03
+    Number of different values: 1312366/36967930
+
+  ✗ FAIL: pr_MPI-ESM1-2-HR_2054.nc
+  Variable 'pr': Values differ
+    Max difference: 5.13e+00
+    Mean difference: 3.83e-03
+    Number of different values: 1289410/36967930
+
+  ✗ FAIL: pr_MPI-ESM1-2-HR_2058.nc
+  Variable 'pr': Values differ
+    Max difference: 6.39e+00
+    Mean difference: 3.90e-03
+    Number of different values: 1284062/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2007.nc
+  Variable 'pr': Values differ
+    Max difference: 5.20e+00
+    Mean difference: 1.82e-03
+    Number of different values: 1213407/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2020.nc
+  Variable 'pr': Values differ
+    Max difference: 8.44e+00
+    Mean difference: 1.91e-03
+    Number of different values: 1327807/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2051.nc
+  Variable 'pr': Values differ
+    Max difference: 6.99e+00
+    Mean difference: 2.11e-03
+    Number of different values: 1505713/36967930
+
+  Summary: 0 passed, 20 failed
+
+Variable: sfcWind (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_1993.nc
+  Variable 'sfcWind': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_2048.nc
+  Variable 'sfcWind': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_2092.nc
+  Variable 'sfcWind': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2012.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.89e+00
+    Mean difference: 9.80e-03
+    Number of different values: 2154285/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2049.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.30e+00
+    Mean difference: 9.69e-03
+    Number of different values: 2140480/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_1984.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.06e+00
+    Mean difference: 1.01e-02
+    Number of different values: 2141121/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_1986.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.21e+00
+    Mean difference: 1.06e-02
+    Number of different values: 2144088/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_1990.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.86e+00
+    Mean difference: 1.04e-02
+    Number of different values: 2130891/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_1998.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.56e+00
+    Mean difference: 1.08e-02
+    Number of different values: 2138215/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2006.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.19e+00
+    Mean difference: 1.09e-02
+    Number of different values: 2135168/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2015.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.59e+00
+    Mean difference: 1.05e-02
+    Number of different values: 2140617/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2025.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 1.81e+00
+    Mean difference: 1.08e-02
+    Number of different values: 2140926/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2049.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.68e+00
+    Mean difference: 9.89e-03
+    Number of different values: 2130864/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2081.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.01e+00
+    Mean difference: 1.10e-02
+    Number of different values: 2156753/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2089.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.95e+00
+    Mean difference: 1.10e-02
+    Number of different values: 2157668/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2014.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.33e+00
+    Mean difference: 1.05e-02
+    Number of different values: 2154230/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2018.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.68e+00
+    Mean difference: 9.88e-03
+    Number of different values: 2134190/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2074.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 3.68e+00
+    Mean difference: 1.04e-02
+    Number of different values: 2139858/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2079.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.59e+00
+    Mean difference: 1.02e-02
+    Number of different values: 2133747/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2094.nc
+  Variable 'sfcWind': Values differ
+    Max difference: 2.47e+00
+    Mean difference: 1.06e-02
+    Number of different values: 2144354/4628930
+
+  Summary: 0 passed, 20 failed
+
+Variable: tasmax (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: tasmax_CNRM-CM6-1-HR_2096.nc
+  Variable 'tasmax': Shape mismatch ((178, 569, 365) vs (365, 178, 569))
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2013.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.71e+00
+    Mean difference: 1.43e-02
+    Number of different values: 2094825/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2031.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.47e+00
+    Mean difference: 1.39e-02
+    Number of different values: 2160597/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2047.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.10e+00
+    Mean difference: 1.39e-02
+    Number of different values: 2120033/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2083.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.04e+00
+    Mean difference: 1.25e-02
+    Number of different values: 2100306/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_1997.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.03e+00
+    Mean difference: 1.50e-02
+    Number of different values: 2153702/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2020.nc
+  Variable 'tasmax': Values differ
+    Max difference: 1.69e+00
+    Mean difference: 1.40e-02
+    Number of different values: 2130533/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2024.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.27e+00
+    Mean difference: 1.43e-02
+    Number of different values: 2170693/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2047.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.60e+00
+    Mean difference: 1.31e-02
+    Number of different values: 2070354/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2059.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.15e+00
+    Mean difference: 1.40e-02
+    Number of different values: 2175225/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2085.nc
+  Variable 'tasmax': Values differ
+    Max difference: 1.53e+00
+    Mean difference: 1.35e-02
+    Number of different values: 2156217/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2089.nc
+  Variable 'tasmax': Values differ
+    Max difference: 1.89e+00
+    Mean difference: 1.50e-02
+    Number of different values: 2171687/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2097.nc
+  Variable 'tasmax': Values differ
+    Max difference: 3.13e+00
+    Mean difference: 1.39e-02
+    Number of different values: 2193631/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2099.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.01e+00
+    Mean difference: 1.44e-02
+    Number of different values: 2164107/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_1984.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.41e+00
+    Mean difference: 1.67e-02
+    Number of different values: 2156094/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2003.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.07e+00
+    Mean difference: 1.39e-02
+    Number of different values: 2145009/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2037.nc
+  Variable 'tasmax': Values differ
+    Max difference: 3.58e+00
+    Mean difference: 1.34e-02
+    Number of different values: 2208595/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2056.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.07e+00
+    Mean difference: 1.49e-02
+    Number of different values: 2191314/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2080.nc
+  Variable 'tasmax': Values differ
+    Max difference: 2.41e+00
+    Mean difference: 1.37e-02
+    Number of different values: 2168067/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2088.nc
+  Variable 'tasmax': Values differ
+    Max difference: 5.21e+00
+    Mean difference: 1.45e-02
+    Number of different values: 2104333/4628930
+
+  Summary: 0 passed, 20 failed
+
+================================================================================
+QUALITY CONTROL SUMMARY
+================================================================================
+Total files compared: 80
+Passed:               0
+Failed:               80
+
+✗ 80 file(s) differ - QC FAILED
+================================================================================
