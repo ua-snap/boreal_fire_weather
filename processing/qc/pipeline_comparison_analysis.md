@@ -57,6 +57,7 @@ The QC comparison revealed that **all 80 tested files differ** between the origi
 - Script: `~/amyoun01-boreal_wildfire_feedbacks-a3d14b5/scripts/04_bias_correct_gcms.py`
 - Function: `wildfire_analysis/data_processing/quantile_delta_mapping.py`
 - Config: `wildfire_analysis/config.yaml`
+- Versions: v1.0 (https://doi.org/10.5281/zenodo.7783759) and v0.1-beta (https://zenodo.org/records/7761883)
 
 **New Pipeline:**
 - Script: `~/boreal_fire_weather/processing/03_bias_correct_gcms.py`
@@ -75,7 +76,7 @@ Both pipelines use the **same core algorithm**:
 
 ## Critical Code Differences
 
-### 1. **Dimension Ordering (EXPLAINS CNRM SHAPE MISMATCH)**
+### 1. **Dimension Ordering**
 
 **Old Pipeline:**
 ```python
@@ -94,7 +95,7 @@ export_ds.to_netcdf(fn, engine="h5netcdf", encoding=encoding)
 
 ---
 
-### 2. **Time Coordinate Alignment (LIKELY CAUSE OF VALUE DIFFERENCES)**
+### 2. **Time Coordinate Alignment**
 
 **Old Pipeline:**
 ```python
@@ -116,7 +117,7 @@ hst = hst.assign_coords(time=hst.time.dt.floor("D"))
 sim = sim.assign_coords(time=sim.time.dt.floor("D"))
 ```
 
-**Impact:** This is the **most likely cause of the numerical differences**. Different time-of-day encodings (e.g., midnight vs noon) can cause slight misalignments in temporal grouping for monthly quantile calculations. When QDM groups by `time.month`, even small time offsets could place values in adjacent months, changing which quantile distributions are used for bias correction.
+**Impact:** Different time-of-day encodings (e.g., midnight vs noon) can cause slight misalignments in temporal grouping for monthly quantile calculations. When QDM groups by `time.month`, even small time offsets could place values in adjacent months, changing which quantile distributions are used for bias correction.
 
 **Example Scenario:**
 - Original: Time encoded as `2020-01-31 12:00:00` → Grouped in January
@@ -127,7 +128,7 @@ This would affect the quantile mapping pairs used for each grid cell and time st
 
 ---
 
-### 3. **Chunking Strategy Bug (AFFECTS NUMERICAL RESULTS)**
+### 3. **Chunking Strategy Bug**
 
 **Old Pipeline:**
 ```python
@@ -169,7 +170,7 @@ Unlike simple chunking performance differences, this bug causes the Dask task gr
 
 ---
 
-### 4. **Hursmin Clipping (INTENTIONAL DIFFERENCE)**
+### 4. **Hursmin Clipping**
 
 **Old Pipeline:**
 ```python
@@ -251,8 +252,8 @@ Running the pipeline with `LEGACY_MODE=TRUE` creates outputs using processing st
 ## Version History of Original Codebase
 
 **Two versions examined:**
-- **Original version (a3d14b5):** Initial public release with environment.yaml
-- **Beta version (819254c):** Alternative commit with requirements.txt
+- **Original version (v1.0: https://doi.org/10.5281/zenodo.7783759):** Initial public release with environment.yaml
+- **Beta version (v0.1-beta: https://zenodo.org/records/7761883):** Alternative commit with requirements.txt
 
 **Finding:** Both versions contain **identical bias correction code**, including all bugs. Files confirmed identical:
 - `scripts/04_bias_correct_gcms.py`
@@ -303,7 +304,7 @@ Both pipelines use **identical versions** of critical packages:
 
 The numerical differences between pipelines stem from three distinct processing differences:
 
-#### 1. Time Coordinate Misalignment (HIGH IMPACT)
+#### 1. Time Coordinate Misalignment
 
 **Mechanism:** The original pipeline does not align time coordinates between ERA5 reference and GCM historical data. Different time-of-day encodings (midnight vs noon) can cause misalignment in the QDM training pairs.
 
@@ -316,7 +317,7 @@ The numerical differences between pipelines stem from three distinct processing 
 
 **Evidence:** Widespread differences (~45-50% of cells) with small magnitudes suggest systematic shifting of quantile mappings rather than gross errors.
 
-#### 2. Chunking Bug (MEDIUM IMPACT)
+#### 2. Chunking Bug
 
 **Mechanism:** The original pipeline sets both lat and lon chunk sizes to the same value (based on lon dimension):
 ```python
@@ -366,7 +367,7 @@ The LEGACY_MODE implementation replicates all three original behaviors to test w
 ### Testing and Validation
 
 1. **LEGACY_MODE Testing (IN PROGRESS)**
-   - Run the new pipeline with `LEGACY_MODE=TRUE` to replicate original processing
+   - Run the new pipeline with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE` to replicate original processing
    - Compare LEGACY_MODE output against original dataset using QC scripts
    - This will verify whether the identified differences (time alignment, chunking bug, dimension ordering) fully account for the observed discrepancies
    - **Status:** LEGACY_MODE implementation complete, validation run pending
