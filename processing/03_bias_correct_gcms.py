@@ -562,7 +562,7 @@ if __name__ == "__main__":
     print(f"Bias Correction Script Started")
     print(f"Start time: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
     if LEGACY_MODE:
-        print(f"⚠️  LEGACY MODE ENABLED - Skipping time alignment and transpose")
+        print(f"⚠️  LEGACY MODE ENABLED - Skipping time alignment and transpose, using original chunking scheme")
         print(f"   (Reproduces original pipeline behavior for testing)")
     if not CLIP_HURSMIN:
         print(f"⚠️  CLIP_HURSMIN DISABLED - Allowing hursmin values outside [0, 100]")
