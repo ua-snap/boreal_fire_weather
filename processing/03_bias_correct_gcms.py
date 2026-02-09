@@ -196,9 +196,17 @@ def chunk_data_arrays(ref, hst, sim, frac=0.2):
     Currently set to 20% the size of each dimension, can modify this later to
     make it more dynamic. Time dimension cannot be broken up for doing quantile
     mapping.
+
+    Note: In LEGACY_MODE, replicates a bug from the original pipeline where
+    both n and m are set to the X axis size, resulting in wrong lat chunk size.
     """
     axes = get_geoaxes(ref)
-    n, m = (ref[axes["Y"]].size, ref[axes["X"]].size)
+
+    if LEGACY_MODE:
+        # Original bug: both n and m use X axis size
+        n = m = ref[axes["X"]].size
+    else:
+        n, m = (ref[axes["Y"]].size, ref[axes["X"]].size)
 
     ref = ref.chunk(chunks={"time": -1, "lat": round(n * frac), "lon": round(m * frac)})
 
@@ -462,12 +470,28 @@ def quantile_delta_mapping(
     ref, hst, sim = mask_arrays(ref, hst, sim, **get_kwargs(("mask",), kwargs))
 
     # Rechunk to ensure time dimension is not split (required for QDM)
-    # Keep spatial chunks but consolidate time dimension
+    # In LEGACY_MODE, use explicit chunk sizes to match original pipeline
     if dask_load:
         axes = get_geoaxes(ref)
-        ref = ref.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
-        hst = hst.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
-        sim = sim.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+        if LEGACY_MODE:
+            # Original pipeline used explicit chunk sizes with the buggy dimensions
+            # Both n and m were set to X axis size (569), giving wrong lat chunks
+            frac = 0.2
+            n = m = ref[axes["X"]].size
+            ref = ref.chunk(
+                chunks={"time": -1, "lat": round(n * frac), "lon": round(m * frac)}
+            )
+            hst = hst.chunk(
+                chunks={"time": -1, "lat": round(n * frac), "lon": round(m * frac)}
+            )
+            sim = sim.chunk(
+                chunks={"time": -1, "lat": round(n * frac), "lon": round(m * frac)}
+            )
+        else:
+            # Use auto chunking for optimal performance in improved pipeline
+            ref = ref.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+            hst = hst.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
+            sim = sim.chunk(chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"})
 
     # Apply uniform random variable if value is less then preset amount. Mainly
     # used for precip (e.g., 0.5 mm/day)

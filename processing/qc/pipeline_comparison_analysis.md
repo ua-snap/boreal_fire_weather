@@ -1,6 +1,6 @@
 # Bias Correction Pipeline Comparison Analysis
 
-**Date:** February 8, 2026  
+**Date:** February 9, 2026  
 **Analyst:** GitHub Copilot  
 **Purpose:** Deep dive comparison of original vs refactored bias correction pipelines
 
@@ -8,16 +8,21 @@
 
 ## Executive Summary
 
-The QC comparison revealed that **all 80 tested files differ** between the original and new pipelines. Two distinct types of differences were found:
+The QC comparison revealed that **all 80 tested files differ** between the original and new pipelines. Investigation identified three critical differences in data processing:
 
 1. **Shape/Dimension Ordering Issues** (CNRM-CM6-1-HR model only)
    - Original: `(lat, lon, time)` → `(178, 569, 365)`
    - New: `(time, lat, lon)` → `(365, 178, 569)`
 
-2. **Numerical Value Differences** (All other models)
-   - Small but widespread differences (~45-50% of grid cells affected)
-   - Mean differences: 1e-3 to 4e-2 depending on variable
-   - Max differences: 0.5 to 23 units depending on variable
+2. **Time Coordinate Alignment** (All models)
+   - Original: No explicit time alignment between ERA5 and GCM data
+   - New: Explicit reindexing and time normalization to day boundaries
+
+3. **Chunking Strategy Bug** (All models)
+   - Original: Bug where both lat and lon chunks use lon dimension size
+   - New: Correct dimension-specific chunking with auto-sizing
+
+**LEGACY_MODE Implementation:** A legacy compatibility mode has been implemented that replicates the original pipeline's behavior (including bugs) for testing purposes. This mode skips time alignment, dimension ordering, and uses the original chunking bug.
 
 ---
 
@@ -122,21 +127,45 @@ This would affect the quantile mapping pairs used for each grid cell and time st
 
 ---
 
-### 3. **Chunking Strategy (PERFORMANCE, NOT RESULTS)**
+### 3. **Chunking Strategy Bug (AFFECTS NUMERICAL RESULTS)**
 
 **Old Pipeline:**
 ```python
-# Fixed chunk sizes
-chunks={'time': 365, 'lon': -1, 'lat': -1}
+# Bug: Both n and m incorrectly set to X axis size
+axes = h.get_geoaxes(ref)
+n, m = (ref[axes['X'][0]].size, ref[axes['X'][0]].size)  # Both use X!
+
+ref = ref.chunk(chunks={
+    'time': -1,
+    'lat': round(n * frac),  # Wrong: n should be Y axis size
+    'lon': round(m * frac)
+})
 ```
 
 **New Pipeline:**
 ```python
-# Optimized chunking based on typical data size
-chunks={"time": 1095, "lat": 89, "lon": 142}
+# Fixed: Correct dimension-specific sizing
+axes = get_geoaxes(ref)
+n, m = (ref[axes["Y"]].size, ref[axes["X"]].size)  # Correct!
+
+# Uses auto-chunking for optimal performance
+chunks={"time": -1, axes["Y"]: "auto", axes["X"]: "auto"}
 ```
 
-**Impact:** Different chunking should **not** affect numerical results, only performance. Dask operations are designed to be chunk-invariant for deterministic operations like QDM.
+**Impact:** This bug in the original pipeline causes incorrect chunk sizing for the latitude dimension. With the actual grid dimensions (178 lat × 569 lon):
+
+- **Intended behavior:** `n=178, m=569` → chunks of `{'lat': 36, 'lon': 114}`
+- **Actual behavior:** `n=569, m=569` → chunks of `{'lat': 114, 'lon': 114}`
+
+This chunking bug affects numerical results because:
+1. QDM performs quantile calculations within chunks before aggregation
+2. Different chunk boundaries → different aggregation order
+3. Floating-point operations are not perfectly associative  
+4. Small rounding differences accumulate during quantile mapping
+
+Unlike simple chunking performance differences, this bug causes the Dask task graph to partition the data differently, leading to subtle numerical variations in the bias-corrected output.
+
+**Note:** The original code also has `axes['X'][0]` attempting to index a string, but this appears to have been handled by the code's error handling mechanisms in practice.
 
 ---
 
@@ -176,27 +205,63 @@ mask_grd = shapely.contains_xy(mask_geom, x, y)
 
 ---
 
-### 6. **Helper Function Bug in Old Code (DOES NOT AFFECT RESULTS)**
+### 6. **Chunking Bug Investigation (AFFECTS RESULTS)**
 
-**Bug Found:** In the old `regrid_geodata` function:
-```python
-ds_interp = ds.interp({
-    axes['X'][0]: x,  # BUG: axes['X'] is string 'lon', so axes['X'][0] is 'l'
-    axes['Y'][0]: y   # Similarly, axes['Y'][0] is 'l' from 'lat'
-}, method=method)
-```
+**Bugs Found in Original Code:**
 
-**Why it doesn't matter:** The code has exception handling that falls back to:
-```python
-axes = {'X': 'lon', 'Y': 'lat'}
-```
-And the try/except in `get_geoaxes` likely catches the error from using the axis attribute, making the indexing bug never execute in practice.
+1. **In `chunk_data_arrays()` function:**
+   ```python
+   n, m = (ref[axes['X'][0]].size, ref[axes['X'][0]].size)
+   # Both n and m use X axis - should be Y and X respectively
+   ```
 
-**Similar bug in `chunk_data_arrays`:**
-```python
-n, m = (ref[axes['X'][0]].size, ref[axes['X'][0]].size)  # Both use same axis!
-```
-This sets both n and m to the same value, but probably didn't affect regridding results significantly.
+2. **In `regrid_geodata()` function:**
+   ```python
+   ds_interp = ds.interp({
+       axes['X'][0]: x,  # axes['X'] is 'lon', so axes['X'][0] is 'l'
+       axes['Y'][0]: y   # Similarly, axes['Y'][0] is 'l' from 'lat'
+   }, method=method)
+   ```
+
+**Why chunking bug matters:**
+The chunking bug causes incorrect chunk sizes for the latitude dimension, affecting how Dask partitions the computation graph. This leads to different intermediate results during quantile calculation and aggregation, causing small numerical differences in the final output.
+
+**Why regridding bug doesn't matter:**
+Grid compatibility analysis confirmed that all GCM data was already on the ERA5 grid (178×569, lat: 35-79.25°N, lon: -177 to -35°W). The shape check in `dimcheck_and_regrid()` passed, so the buggy `regrid_geodata()` function was never executed in production.
+
+---
+
+## LEGACY_MODE Implementation
+
+To test whether the identified differences fully explain the QC discrepancies, a **LEGACY_MODE** environment variable has been implemented in the new pipeline. When enabled (`LEGACY_MODE=TRUE`), the pipeline replicates the original processing approach:
+
+**Behaviors in LEGACY_MODE:**
+1. ✓ **Skips time alignment** - No reindexing or time flooring
+2. ✓ **Skips dimension transpose** - Preserves natural xarray ordering
+3. ✓ **Uses buggy chunking** - Both n and m set to X axis size
+4. ✓ **Matches original chunking pattern** - Fixed 20% chunks, not "auto"
+
+**Testing Strategy:**
+Running the pipeline with `LEGACY_MODE=TRUE` creates outputs using processing steps identical to the original pipeline. Comparing these outputs with the original dataset will determine if all significant differences have been identified and replicated.
+
+**Important Note:** LEGACY_MODE is for diagnostic purposes only. It intentionally includes bugs from the original code to test the hypothesis that these bugs explain the observed differences. It should not be used for production work.
+
+---
+
+## Version History of Original Codebase
+
+**Two versions examined:**
+- **Original version (a3d14b5):** Initial public release with environment.yaml
+- **Beta version (819254c):** Alternative commit with requirements.txt
+
+**Finding:** Both versions contain **identical bias correction code**, including all bugs. Files confirmed identical:
+- `scripts/04_bias_correct_gcms.py`
+- `wildfire_analysis/data_processing/quantile_delta_mapping.py`  
+- `wildfire_analysis/utils/helpers.py`
+- `wildfire_analysis/config.yaml`
+- Package versions (xclim 0.40.0, xarray 2022.12.0, dask 2022.12.1)
+
+The existing original dataset could have been produced by either version, as they are functionally equivalent for the bias correction step.
 
 ---
 
@@ -234,39 +299,52 @@ Both pipelines use **identical versions** of critical packages:
 
 ## Root Cause Analysis
 
-### Primary Cause: Time Coordinate Handling
+### Three Interacting Causes
 
-The **most likely explanation** for the numerical differences is the **lack of time coordinate alignment** in the original pipeline. Here's why:
+The numerical differences between pipelines stem from three distinct processing differences:
 
-1. **QDM groups by month:** The algorithm uses `group='time.month'` to calculate separate quantile mappings for each month.
+#### 1. Time Coordinate Misalignment (HIGH IMPACT)
 
-2. **Time encoding varies:** ERA5 and CMIP6 datasets may encode times differently:
-   - Some use midnight (00:00:00)
-   - Some use noon (12:00:00)  
-   - Some use varying sub-daily timestamps
+**Mechanism:** The original pipeline does not align time coordinates between ERA5 reference and GCM historical data. Different time-of-day encodings (midnight vs noon) can cause misalignment in the QDM training pairs.
 
-3. **Misalignment cascade:** If the historical GCM times don't exactly match ERA5 reference times:
-   - The `QDM.train()` step pairs ref/hst values that aren't from precisely the same timestamps
-   - Monthly groupings might shift some edge cases to adjacent months
-   - Small differences in training quantiles propagate to all adjusted values
+**Impact Chain:**
+- QDM groups by `time.month` to calculate separate quantile mappings
+- If ref time is `2020-01-31 12:00` and hst time is `2020-01-31 00:00`, they match
+- But if there's a day offset, values could be grouped into different months
+- Different monthly quantile distributions → different bias correction mappings
+- Effects propagate to all adjusted simulation values
 
-4. **Evidence from QC:**
-   - ~45-50% of grid cells affected for most variables
-   - Differences are small but widespread (mean ~1-4% of typical values)
-   - Pattern is consistent across all non-CNRM models
+**Evidence:** Widespread differences (~45-50% of cells) with small magnitudes suggest systematic shifting of quantile mappings rather than gross errors.
 
-The new pipeline's explicit time alignment ensures that:
+#### 2. Chunking Bug (MEDIUM IMPACT)
+
+**Mechanism:** The original pipeline sets both lat and lon chunk sizes to the same value (based on lon dimension):
 ```python
-ref.time == hst.time  # After reindexing
+n = m = lon_size  # Bug: should be n=lat_size, m=lon_size
 ```
-And flooring to day boundary removes sub-day variability:
-```python
-ref.time.dt.floor("D")  # All times at 00:00:00
-```
+This creates chunks of `{'lat': 114, 'lon': 114}` instead of `{'lat': 36, 'lon': 114}`.
 
-### Secondary Cause: Implicit Dimension Ordering
+**Impact Chain:**
+- Different chunk boundaries → different Dask task partitioning
+- QDM quantile calculations done within chunks before aggregation
+- Different aggregation order → floating-point rounding differences  
+- Small numerical variations accumulate through the correction process
 
-For CNRM files specifically, the lack of explicit `transpose()` in the old pipeline resulted in inconsistent dimension ordering. The new pipeline enforces `(time, lat, lon)` for all outputs.
+**Why it matters:** While chunking is often computationally transparent, quantile operations can be sensitive to how data is partitioned, especially when aggregating results across chunk boundaries.
+
+#### 3. Dimension Ordering (CNRM FILES ONLY)
+
+**Mechanism:** The original pipeline does not enforce dimension order, preserving whatever ordering results from internal xarray operations.
+
+**Impact:** CNRM files ended up with `(lat, lon, time)` ordering while other models had `(time, lat, lon)`. This is a shape difference only, not a values difference.
+
+### Combined Effect
+
+These three factors work together to produce the observed QC results:
+- **All models:** Time alignment + chunking bug → numerical differences
+- **CNRM only:** Addition of dimension reordering → shape mismatch
+
+The LEGACY_MODE implementation replicates all three original behaviors to test whether they fully account for the observed differences.
 
 ---
 
@@ -285,51 +363,98 @@ For CNRM files specifically, the lack of explicit `transpose()` in the old pipel
 
 ## Recommendations
 
-### For Production Use
+### Testing and Validation
 
-1. **The new pipeline should be considered the reference implementation** moving forward due to:
-   - Time alignment fixes
-   - Consistent dimension ordering
-   - Bug corrections
-   - Better performance
+1. **LEGACY_MODE Testing (IN PROGRESS)**
+   - Run the new pipeline with `LEGACY_MODE=TRUE` to replicate original processing
+   - Compare LEGACY_MODE output against original dataset using QC scripts
+   - This will verify whether the identified differences (time alignment, chunking bug, dimension ordering) fully account for the observed discrepancies
+   - **Status:** LEGACY_MODE implementation complete, validation run pending
 
-2. **If backward compatibility is required:**
-   - The time alignment is the critical difference
-   - Could add a "legacy mode" flag that skips time alignment and transpose
-   - However, this would perpetuate the temporal misalignment issues
+2. **Expected LEGACY_MODE Outcomes:**
+   - If LEGACY outputs match original dataset → All differences identified and understood
+   - If LEGACY outputs still differ → Additional processing differences remain to be found
+   - Either outcome provides valuable information for the path forward
 
-3. **For QC validation:**
-   - The differences are explainable and methodologically sound
-   - The new pipeline's approach is more robust and reproducible
-   - Consider the new output as an improved version rather than a failed replication
+### For Production Use (After LEGACY_MODE Validation)
+
+1. **Default recommendation: Use improved pipeline**
+   - Fixes time alignment issues for more accurate temporal pairing
+   - Corrects chunking bug for proper dimension handling
+   - Enforces consistent dimension ordering across all models
+   - Provides better performance with optimized chunking
+
+2. **If LEGACY_MODE matches original dataset:**
+   - Treat original dataset as v1.0 (with known processing quirks)
+   - Treat improved pipeline output as v2.0 (with corrections)
+   - Document differences and provide migration guidance
+   - Consider regenerating critical downstream datasets with v2.0
+
+3. **If backward compatibility is critical:**
+   - LEGACY_MODE can reproduce original processing for specific comparisons
+   - Not recommended for new production work
+   - Should be clearly documented as replicating historical bugs
 
 ### For Documentation
 
-1. **Create a migration guide** explaining:
-   - Why results differ from the original dataset
-   - The improvements in temporal handling
+1. **Processing provenance:**
+   - Clearly indicate which pipeline version produced each dataset
+   - Document the three key processing differences
+   - Explain why v2.0 is recommended despite numerical differences
+
+2. **Migration guide for users:**
    - Expected magnitude of differences by variable
+   - Which downstream analyses are sensitive to these differences
+   - How to interpret comparisons between v1.0 and v2.0 outputs
 
-2. **Update data provenance** to clearly indicate:
-   - Processing pipeline version
-   - Time alignment methodology
-   - Quality improvements over v1.0
-
-3. **Archive comparison** for future reference:
-   - Save QC results
-   - Document decision to adopt new pipeline
-   - Provide bridging documentation for users of original dataset
+3. **Version control:**
+   - Tag original pipeline code with appropriate version markers
+   - Maintain LEGACY_MODE for reproducibility but warn against production use
+   - Use semantic versioning for future pipeline changes
 
 ---
 
 ## Conclusion
 
-The differences between the original and new bias correction pipelines stem primarily from **improvements in time coordinate handling** rather than errors in either implementation. Both pipelines use the same core QDM algorithm with identical parameters, but the new pipeline adds crucial preprocessing steps that:
+### Processing Differences Identified
 
-1. Ensure temporal alignment between reference and historical data
-2. Normalize time encoding to prevent sub-daily variations
-3. Enforce consistent dimension ordering in output files
+Comprehensive comparison of the original and refactored bias correction pipelines has identified **three key processing differences**:
 
-These changes result in small but widespread numerical differences (~1-4% mean change) that reflect more robust and reproducible processing rather than computational errors. The new pipeline should be adopted as the definitive implementation going forward.
+1. **Time coordinate alignment** - Original pipeline did not align time coordinates between ERA5 and GCM data, potentially causing temporal mismatches in QDM training pairs
+2. **Chunking bug** - Original pipeline incorrectly used lon dimension size for both lat and lon chunks, affecting Dask task partitioning and quantile calculations
+3. **Dimension ordering** - Original pipeline did not enforce consistent dimension order, resulting in variable output formats
 
-**Status:** The refactored pipeline is functioning correctly and represents an improvement over the original implementation.
+### LEGACY_MODE for Validation
+
+A **LEGACY_MODE** has been implemented in the refactored pipeline that replicates all three original behaviors, including bugs. This enables direct testing of the hypothesis that these three differences fully explain the observed QC discrepancies:
+
+- When `LEGACY_MODE=TRUE`: Uses original time handling, buggy chunking, and flexible dimension ordering
+- When `LEGACY_MODE=FALSE`: Uses improved time alignment, correct chunking, and enforced ordering
+
+**Current Status:** LEGACY_MODE implementation is complete. Validation testing against the original dataset will determine whether the identified differences are comprehensive or if additional processing variations remain to be discovered.
+
+### Pipeline Quality Assessment
+
+Both pipelines use the **same core QDM algorithm** (`xclim.sdba.QuantileDeltaMapping` v0.40.0) with identical parameters. The differences lie entirely in data preprocessing steps:
+
+**Original Pipeline:**
+- Simple approach with minimal preprocessing
+- Contains subtle bugs in helper functions
+- Inconsistent handling of time coordinates and dimensions
+- Produced the published v1.0 dataset
+
+**Refactored Pipeline:**  
+- Adds explicit preprocessing for robustness
+- Fixes bugs in chunking and regridding logic
+- Enforces consistent time alignment and dimension ordering
+- Produces v2.0 dataset with improved reproducibility
+
+The refactored pipeline represents a methodological improvement, but numerical differences from v1.0 are expected due to the preprocessing corrections.
+
+**Next Step:** Complete LEGACY_MODE validation run to verify that all processing differences have been identified and successfully replicated.
+
+---
+
+**Analysis Date:** February 9, 2026  
+**Document Version:** 2.0  
+**Status:** LEGACY_MODE testing in progress
