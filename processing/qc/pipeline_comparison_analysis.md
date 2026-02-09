@@ -26,7 +26,9 @@ An initial QC comparison revealed that **all 80 tested files differ** between th
 
 **Comparison:** Original dataset vs LEGACY_MODE output (with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE`)
 
-### Results by Variable
+### Bias Corrected CMIP6 Data
+
+**Dataset:** Bias-corrected climate variables (hursmin, pr, sfcWind, tasmax)
 
 | Variable | Files Tested | Pass Rate | Mean Difference Range | Max Difference Range | Affected Cells |
 |----------|--------------|-----------|----------------------|---------------------|----------------|
@@ -36,7 +38,7 @@ An initial QC comparison revealed that **all 80 tested files differ** between th
 | tasmax   | 20           | 0%        | 0.012 - 0.016        | 1.7 - 3.1           | ~47% (2.1M/4.6M) |
 | **Total**| **80**       | **0%**    | -                    | -                   | -              |
 
-### Key Findings
+**Key Findings:**
 
 1. **All 80 files still differ** despite LEGACY_MODE replicating the original pipeline's behavior (including time alignment skipping, chunking bug, and flexible dimension ordering)
 
@@ -47,7 +49,35 @@ An initial QC comparison revealed that **all 80 tested files differ** between th
 
 3. **Numerical differences persist** with similar magnitudes to the original comparison, suggesting additional processing differences beyond the three identified factors
 
-4. **Implication:** The identified differences (time coordinate alignment, chunking bug, dimension ordering enforcement) do not fully explain the discrepancies between the original and refactored pipelines. Further investigation needed to identify remaining processing variations.
+### CFFDRS Indices
+
+**Dataset:** Canadian Forest Fire Danger Rating System indices calculated from bias-corrected data
+
+| Index | Files Tested | Pass Rate | Mean Difference Range (CMIP6) | Max Difference Range (CMIP6) | Affected Cells |
+|-------|--------------|-----------|------------------------------|------------------------------|----------------|
+| ffmc  | 20           | 0%        | 0.008 - 0.043                | 22 - 41                      | ~100% (all non-NaN) |
+| fwi   | 20           | 0%        | 0.009 - 0.30                 | 2 - 30                       | ~100% (all non-NaN) |
+| isi   | 20           | 0%        | 0.006 - 0.13                 | 3 - 16                       | ~100% (all non-NaN) |
+| dc    | 20           | 0%        | 0.43 - 0.61                  | 21 - 46                      | ~78% (3.5M/4.6M) |
+| bui   | 20           | 0%        | 0.025 - 0.32                 | 3 - 138                      | ~70% (3.1M/4.6M) |
+| dmc   | 20           | 0%        | 0.016 - 0.32                 | 4 - 184                      | ~73% (3.2M/4.6M) |
+| **Total** | **20** | **0%** | - | - | - |
+
+**Key Findings:**
+
+1. **All 20 files fail** - CFFDRS indices differ between original and LEGACY_MODE processing
+
+2. **NaN pattern differences** - Some files (primarily CNRM and MRI models) show differences in NaN locations for ffmc, fwi, and isi indices, with 181-23,042 locations affected per file
+
+3. **Cascade effect from input differences** - Since CFFDRS indices are calculated from the bias-corrected climate variables, differences in the input data propagate through the fire weather calculations
+
+4. **Higher-order indices more affected** - Complex indices like dc, bui, and dmc show larger maximum differences due to accumulation and interaction of multiple variables
+
+5. **ERA5 baseline shows minimal differences** - One ERA5 CFFDRS file tested showed extremely small differences (mean ~1e-9 to 1e-6), suggesting the CFFDRS calculation code itself is stable and differences stem primarily from input data variations
+
+### Overall Implication
+
+The identified differences (time coordinate alignment, chunking bug, dimension ordering enforcement) do not fully explain the discrepancies between the original and refactored pipelines. Further investigation needed to identify remaining processing variations.
 
 ---
 
@@ -311,9 +341,9 @@ Both pipelines use **identical versions** of critical packages:
 ## LEGACY_MODE Testing and Validation
 
 1. **Bias Corrected CMIP6**
-   - When we run the new bias correction pipeline with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE` to replicate original processing, we see that the identified differences (time alignment, chunking bug, dimension ordering) did not fully account for the observed discrepancies. Additional processing differences remain to be found. LEGACY_MODE **cannot** reproduce original processing for specific comparisons.
+   - When we run the new bias correction pipeline with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE` to replicate original processing, we see that the identified differences (time alignment, chunking bug, dimension ordering) did not fully account for the observed discrepancies. Additional processing differences remain to be found. LEGACY_MODE **cannot** reproduce original processing for specific comparisons!
 
 2. **CFFDRS indices**
-   - When we calculate the CFFDRS indices using LEGACY_MODE bias-corrected CMIP6 data (i.e., produced with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE`), we see CONCLUSION TBD TBD TBD
+   - When we calculate the CFFDRS indices using LEGACY_MODE bias-corrected CMIP6 data (i.e., produced with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE`), we see that the identified differences (time alignment, chunking bug, dimension ordering) did not fully account for the observed discrepancies. Additional processing differences remain to be found. LEGACY_MODE **cannot** reproduce original processing for specific comparisons!
 
 ---
