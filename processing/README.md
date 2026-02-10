@@ -31,6 +31,19 @@ Optionally, include a shapefile to subset the data during the bias correction st
 export SHP_MASK=/path/to/shapefile/mask.shp
 ```
 
+**Optional Configuration Flags:**
+
+```bash
+# CLIP_HURSMIN: Clip relative humidity to valid range [0, 100]
+# Set to FALSE for comparison with original dataset (default: TRUE)
+export CLIP_HURSMIN=TRUE
+
+# LEGACY_MODE: Replicate original pipeline behavior for testing
+# Skips time alignment, dimension ordering, uses buggy chunking (default: FALSE)
+# WARNING: For diagnostic purposes only, not for production use
+export LEGACY_MODE=FALSE
+```
+
 **Note:** If your data is already processed (daily summaries with correct variable names and calendar), you can skip scripts `01_*.py` and `02_*.py` and set `ERA5_PROCESSED` and `CMIP6_PROCESSED` to point directly to your existing processed data.
 
 ### Directory Structure
@@ -109,6 +122,13 @@ Apply Quantile Delta Mapping (QDM) bias correction to CMIP6 data using ERA5 as r
 - Apply bias correction to future projection periods (2010-2039, 2040-2069, 2070-2099)
 - Optional: Apply spatial mask from shapefile
 - Handle precipitation thresholds with jitter method
+- **New features:**
+  - Explicit time coordinate alignment to prevent temporal mismatches
+  - Consistent dimension ordering: `(time, lat, lon)` across all outputs
+  - Optimized Dask chunking for improved performance
+  - Optional clipping of `hursmin` to physically valid range [0, 100]
+  - Distributed computing with `persist()` for efficient data reuse
+  - Configuration via `CLIP_HURSMIN` and `LEGACY_MODE` environment variables
 - Output: `OUT_DIR/bias_corrected/{gcm}/`
 
 #### 04_calculate_cffdrs.py
@@ -126,21 +146,45 @@ Calculated for both ERA5 and bias-corrected CMIP6 data.
 
 ### Quality Control
 
-To validate that this pipeline produces results identical to the reference version ([Zenodo v7783759](https://zenodo.org/records/7783759)), use the QC script in the `qc/` directory. Run the pipeline with `CLIP_HURSMIN=FALSE` to disable humidity clipping for comparison purposes:
+#### Comparing Outputs
+
+This refactored pipeline includes methodological improvements over the original ([Zenodo v7783759](https://zenodo.org/records/7783759)). Due to these improvements, outputs will differ numerically from the original dataset. See `qc/pipeline_comparison_analysis.md` for detailed technical analysis.
+
+To compare outputs with a reference dataset:
 
 ```bash
+# Run pipeline (set CLIP_HURSMIN=FALSE for comparison with original dataset)
 export CLIP_HURSMIN=FALSE
 python 03_bias_correct_gcms.py
 python 04_calculate_cffdrs.py
+
+# Compare bias corrected outputs
+cd qc/bias_corrected/
+python ../compare_datasets.py /path/to/reference/bias_corrected /path/to/new/bias_corrected
+
+# Compare CFFDRS outputs
+cd ../cffdrs/
+python ../compare_datasets.py /path/to/reference/cffdrs /path/to/new/cffdrs
 ```
 
-Then compare outputs using:
+See `qc/README.md` for detailed QC workflow documentation.
+
+#### LEGACY_MODE Testing
+
+For diagnostic purposes, a `LEGACY_MODE` flag attempts to replicate the original pipeline's behavior:
+
 ```bash
-cd qc/
-python compare_datasets.py /path/to/reference/data /path/to/new/data
+export LEGACY_MODE=TRUE
+export CLIP_HURSMIN=FALSE
+python 03_bias_correct_gcms.py
 ```
 
-See `qc/README.md` for detailed usage instructions.
+**Warning:** LEGACY_MODE intentionally includes bugs from the original code and should **not** be used for production work.
+
+### Additional Documentation
+
+- **`qc/pipeline_comparison_analysis.md`** - Technical analysis of differences between this pipeline and the original version
+- **`qc/README.md`** - QC workflow documentation
 
 ### References
 
