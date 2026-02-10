@@ -8,139 +8,211 @@ Max files per var:   20
 ================================================================================
 
 Finding matching files...
-Found 480 matching files
+Found 1920 matching files
 
-Running QC on 20 files across 1 variable(s)...
+Running QC on 80 files across 4 variable(s)...
 
 Variable: hursmin (20 files)
 --------------------------------------------------------------------------------
-  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2003.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_1986.nc
   Variable 'hursmin': Values differ
-    Max difference: 1.31e+01
-    Mean difference: 3.83e-04
-    Number of different values: 722/4628930
+    Max difference: 1.52e+01
+    Mean difference: 1.77e-04
+    Number of different values: 296/4628930
 
-  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2019.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2001.nc
   Variable 'hursmin': Values differ
-    Max difference: 1.02e+02
-    Mean difference: 4.40e-03
-    Number of different values: 1771/4628930
+    Max difference: 1.64e+01
+    Mean difference: 4.22e-04
+    Number of different values: 658/4628930
 
-  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2083.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2010.nc
   Variable 'hursmin': Values differ
-    Max difference: 1.81e+02
-    Mean difference: 2.12e-02
-    Number of different values: 4852/4628930
+    Max difference: 9.92e+01
+    Mean difference: 8.31e-03
+    Number of different values: 3532/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_1985.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2049.nc
   Variable 'hursmin': Values differ
-    Max difference: 3.77e+00
-    Mean difference: 4.04e-05
-    Number of different values: 197/4628930
+    Max difference: 1.20e+02
+    Mean difference: 4.36e-03
+    Number of different values: 1858/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_2010.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2052.nc
   Variable 'hursmin': Values differ
-    Max difference: 8.79e+00
-    Mean difference: 1.97e-05
-    Number of different values: 59/4628930
+    Max difference: 1.14e+02
+    Mean difference: 1.03e-02
+    Number of different values: 3472/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_2029.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2055.nc
   Variable 'hursmin': Values differ
-    Max difference: 7.72e+00
-    Mean difference: 3.18e-05
-    Number of different values: 91/4628930
+    Max difference: 1.49e+02
+    Mean difference: 9.17e-03
+    Number of different values: 3097/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_2031.nc
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2074.nc
   Variable 'hursmin': Values differ
-    Max difference: 5.14e+00
-    Mean difference: 2.92e-05
-    Number of different values: 160/4628930
+    Max difference: 1.58e+02
+    Mean difference: 1.96e-02
+    Number of different values: 5422/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_2038.nc
+  ✗ FAIL: hursmin_EC-Earth3-Veg_1988.nc
   Variable 'hursmin': Values differ
-    Max difference: 8.70e+00
-    Mean difference: 4.37e-05
-    Number of different values: 139/4628930
+    Max difference: 1.09e+01
+    Mean difference: 6.33e-05
+    Number of different values: 122/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_2047.nc
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2004.nc
   Variable 'hursmin': Values differ
-    Max difference: 1.27e+01
-    Mean difference: 1.26e-04
-    Number of different values: 232/4628930
+    Max difference: 6.74e+00
+    Mean difference: 5.30e-05
+    Number of different values: 127/4628930
 
-  ✗ FAIL: hursmin_EC-Earth3-Veg_2096.nc
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2071.nc
   Variable 'hursmin': Values differ
-    Max difference: 4.22e+01
-    Mean difference: 3.46e-04
-    Number of different values: 756/4628930
+    Max difference: 4.64e+01
+    Mean difference: 2.37e-04
+    Number of different values: 454/4628930
 
-  ✗ FAIL: hursmin_MPI-ESM1-2-HR_1997.nc
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2072.nc
   Variable 'hursmin': Values differ
-    Max difference: 1.11e+01
-    Mean difference: 1.94e-04
-    Number of different values: 281/4628930
+    Max difference: 3.65e+01
+    Mean difference: 4.27e-04
+    Number of different values: 630/4628930
 
-  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2009.nc
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2077.nc
   Variable 'hursmin': Values differ
-    Max difference: 9.10e+00
-    Mean difference: 8.50e-05
-    Number of different values: 201/4628930
+    Max difference: 3.77e+01
+    Mean difference: 1.58e-04
+    Number of different values: 355/4628930
 
-  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2028.nc
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2086.nc
   Variable 'hursmin': Values differ
-    Max difference: 8.69e+00
-    Mean difference: 8.73e-05
-    Number of different values: 183/4628930
+    Max difference: 2.45e+01
+    Mean difference: 9.88e-04
+    Number of different values: 1627/4628930
 
-  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2075.nc
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_1984.nc
   Variable 'hursmin': Values differ
-    Max difference: 2.81e+00
-    Mean difference: 7.13e-06
-    Number of different values: 28/4628930
+    Max difference: 1.65e+01
+    Mean difference: 4.40e-04
+    Number of different values: 448/4628930
 
-  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2098.nc
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_1994.nc
   Variable 'hursmin': Values differ
-    Max difference: 3.15e-01
-    Mean difference: 6.80e-08
-    Number of different values: 1/4628930
+    Max difference: 1.48e+01
+    Mean difference: 2.86e-04
+    Number of different values: 375/4628930
 
-  ✗ FAIL: hursmin_MRI-ESM2-0_1981.nc
+  ✗ FAIL: hursmin_MRI-ESM2-0_1983.nc
   Variable 'hursmin': Values differ
-    Max difference: 1.95e+01
-    Mean difference: 1.19e-03
-    Number of different values: 1208/4628930
+    Max difference: 2.93e+01
+    Mean difference: 2.71e-03
+    Number of different values: 1895/4628930
 
-  ✗ FAIL: hursmin_MRI-ESM2-0_1993.nc
-  Variable 'hursmin': Values differ
-    Max difference: 3.15e+01
-    Mean difference: 2.05e-03
-    Number of different values: 1702/4628930
-
-  ✗ FAIL: hursmin_MRI-ESM2-0_2002.nc
+  ✗ FAIL: hursmin_MRI-ESM2-0_2008.nc
   Variable 'hursmin': Values differ
     Max difference: 2.44e+01
-    Mean difference: 2.48e-03
-    Number of different values: 1962/4628930
+    Mean difference: 4.39e-03
+    Number of different values: 2891/4628930
 
-  ✗ FAIL: hursmin_MRI-ESM2-0_2061.nc
+  ✗ FAIL: hursmin_MRI-ESM2-0_2017.nc
   Variable 'hursmin': Values differ
-    Max difference: 5.80e+01
-    Mean difference: 3.73e-02
-    Number of different values: 25340/4628930
+    Max difference: 2.48e+01
+    Mean difference: 3.55e-03
+    Number of different values: 2983/4628930
 
-  ✗ FAIL: hursmin_MRI-ESM2-0_2077.nc
+  ✗ FAIL: hursmin_MRI-ESM2-0_2031.nc
   Variable 'hursmin': Values differ
-    Max difference: 8.08e+01
-    Mean difference: 1.71e-01
-    Number of different values: 75175/4628930
+    Max difference: 2.48e+01
+    Mean difference: 1.81e-03
+    Number of different values: 1795/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2051.nc
+  Variable 'hursmin': Values differ
+    Max difference: 4.29e+01
+    Mean difference: 2.69e-02
+    Number of different values: 19129/4628930
 
   Summary: 0 passed, 20 failed
+
+Variable: pr (20 files)
+--------------------------------------------------------------------------------
+  ✓ PASS: pr_CNRM-CM6-1-HR_1983.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_1986.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_2018.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_2048.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_2052.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_2077.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_2087.nc
+  ✓ PASS: pr_CNRM-CM6-1-HR_2089.nc
+  ✓ PASS: pr_EC-Earth3-Veg_2030.nc
+  ✓ PASS: pr_EC-Earth3-Veg_2047.nc
+  ✓ PASS: pr_EC-Earth3-Veg_2071.nc
+  ✓ PASS: pr_EC-Earth3-Veg_2077.nc
+  ✓ PASS: pr_EC-Earth3-Veg_2080.nc
+  ✓ PASS: pr_MPI-ESM1-2-HR_2010.nc
+  ✓ PASS: pr_MPI-ESM1-2-HR_2038.nc
+  ✓ PASS: pr_MPI-ESM1-2-HR_2042.nc
+  ✓ PASS: pr_MPI-ESM1-2-HR_2099.nc
+  ✓ PASS: pr_MRI-ESM2-0_1984.nc
+  ✓ PASS: pr_MRI-ESM2-0_2000.nc
+  ✓ PASS: pr_MRI-ESM2-0_2049.nc
+  Summary: 20 passed, 0 failed
+
+Variable: sfcWind (20 files)
+--------------------------------------------------------------------------------
+  ✓ PASS: sfcWind_CNRM-CM6-1-HR_1980.nc
+  ✓ PASS: sfcWind_CNRM-CM6-1-HR_1988.nc
+  ✓ PASS: sfcWind_CNRM-CM6-1-HR_2036.nc
+  ✓ PASS: sfcWind_CNRM-CM6-1-HR_2049.nc
+  ✓ PASS: sfcWind_CNRM-CM6-1-HR_2075.nc
+  ✓ PASS: sfcWind_EC-Earth3-Veg_2034.nc
+  ✓ PASS: sfcWind_EC-Earth3-Veg_2037.nc
+  ✓ PASS: sfcWind_EC-Earth3-Veg_2066.nc
+  ✓ PASS: sfcWind_EC-Earth3-Veg_2078.nc
+  ✓ PASS: sfcWind_EC-Earth3-Veg_2080.nc
+  ✓ PASS: sfcWind_EC-Earth3-Veg_2098.nc
+  ✓ PASS: sfcWind_MPI-ESM1-2-HR_1995.nc
+  ✓ PASS: sfcWind_MPI-ESM1-2-HR_2015.nc
+  ✓ PASS: sfcWind_MPI-ESM1-2-HR_2037.nc
+  ✓ PASS: sfcWind_MPI-ESM1-2-HR_2060.nc
+  ✓ PASS: sfcWind_MPI-ESM1-2-HR_2068.nc
+  ✓ PASS: sfcWind_MPI-ESM1-2-HR_2079.nc
+  ✓ PASS: sfcWind_MRI-ESM2-0_2016.nc
+  ✓ PASS: sfcWind_MRI-ESM2-0_2045.nc
+  ✓ PASS: sfcWind_MRI-ESM2-0_2061.nc
+  Summary: 20 passed, 0 failed
+
+Variable: tasmax (20 files)
+--------------------------------------------------------------------------------
+  ✓ PASS: tasmax_CNRM-CM6-1-HR_1990.nc
+  ✓ PASS: tasmax_CNRM-CM6-1-HR_2024.nc
+  ✓ PASS: tasmax_CNRM-CM6-1-HR_2027.nc
+  ✓ PASS: tasmax_CNRM-CM6-1-HR_2051.nc
+  ✓ PASS: tasmax_CNRM-CM6-1-HR_2071.nc
+  ✓ PASS: tasmax_EC-Earth3-Veg_1990.nc
+  ✓ PASS: tasmax_EC-Earth3-Veg_2004.nc
+  ✓ PASS: tasmax_EC-Earth3-Veg_2015.nc
+  ✓ PASS: tasmax_EC-Earth3-Veg_2028.nc
+  ✓ PASS: tasmax_EC-Earth3-Veg_2055.nc
+  ✓ PASS: tasmax_EC-Earth3-Veg_2073.nc
+  ✓ PASS: tasmax_MPI-ESM1-2-HR_2010.nc
+  ✓ PASS: tasmax_MPI-ESM1-2-HR_2020.nc
+  ✓ PASS: tasmax_MPI-ESM1-2-HR_2035.nc
+  ✓ PASS: tasmax_MPI-ESM1-2-HR_2096.nc
+  ✓ PASS: tasmax_MRI-ESM2-0_1995.nc
+  ✓ PASS: tasmax_MRI-ESM2-0_2005.nc
+  ✓ PASS: tasmax_MRI-ESM2-0_2019.nc
+  ✓ PASS: tasmax_MRI-ESM2-0_2032.nc
+  ✓ PASS: tasmax_MRI-ESM2-0_2055.nc
+  Summary: 20 passed, 0 failed
 
 ================================================================================
 QUALITY CONTROL SUMMARY
 ================================================================================
-Total files compared: 20
-Passed:               0
+Total files compared: 80
+Passed:               60
 Failed:               20
 
 ✗ 20 file(s) differ - QC FAILED

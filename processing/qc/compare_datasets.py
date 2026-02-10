@@ -30,6 +30,9 @@ Examples:
 
     # Compare 10 files of all variables
     python compare_datasets.py /data/old /data/new "" 10
+
+    # Output to a file instead of console
+    python qc/compare_datasets.py /data/old /data/new "" 20 > qc/cffdrs/original_vs_hursmin_fixed.txt
 """
 
 import sys
