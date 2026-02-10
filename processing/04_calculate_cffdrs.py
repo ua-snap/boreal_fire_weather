@@ -5,7 +5,7 @@ from pathlib import Path
 from datetime import datetime
 import time
 
-from config import ERA5_PROCESSED, OUT_DIR, gcm_list, era5_years, hist_years, sim_periods
+from config import ERA5_PROCESSED, OUT_DIR, CMIP6_BIAS_CORRECTED, gcm_list, era5_years, hist_years, sim_periods
 from utils import *
 
 import warnings
@@ -460,6 +460,13 @@ if __name__ == "__main__":
     print(f"\n{'='*60}")
     print(f"CFFDRS Calculation Script Started")
     print(f"Start time: {start_datetime.strftime('%Y-%m-%d %H:%M:%S')}")
+    
+    # Display which bias-corrected directory will be used
+    if CMIP6_BIAS_CORRECTED:
+        print(f"Using bias-corrected data from: {CMIP6_BIAS_CORRECTED}")
+    else:
+        print(f"Using bias-corrected data from: {OUT_DIR}/bias_corrected")
+    
     print(f"{'='*60}\n")
 
     era5_dir = Path(ERA5_PROCESSED)
@@ -525,7 +532,11 @@ if __name__ == "__main__":
 
     with tqdm(total=len(cmip6_year_range)*len(gcm_list), desc="Processing GCMs") as pbar:
         for gcm in gcm_list:
-            cmip6_dir_i = Path(OUT_DIR).joinpath("bias_corrected", gcm)
+            # Use CMIP6_BIAS_CORRECTED if set, otherwise use OUT_DIR/bias_corrected
+            if CMIP6_BIAS_CORRECTED:
+                cmip6_dir_i = Path(CMIP6_BIAS_CORRECTED).joinpath(gcm)
+            else:
+                cmip6_dir_i = Path(OUT_DIR).joinpath("bias_corrected", gcm)
 
             for yr in cmip6_year_range:
                 pbar.set_postfix({"GCM": gcm, "year": yr})

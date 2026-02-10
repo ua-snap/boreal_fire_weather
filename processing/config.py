@@ -11,6 +11,10 @@ CMIP6_PROCESSED = os.getenv("CMIP6_PROCESSED")
 # Output directory for bias correction and CFFDRS
 OUT_DIR = os.getenv("OUT_DIR")
 
+# Optional path to existing bias-corrected CMIP6 data (if not processing from scratch)
+# If not set, will use OUT_DIR/bias_corrected
+CMIP6_BIAS_CORRECTED = os.getenv("CMIP6_BIAS_CORRECTED")
+
 # Optional spatial mask
 SHP_MASK = os.getenv("SHP_MASK")
 
