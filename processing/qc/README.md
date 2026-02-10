@@ -7,7 +7,7 @@ This directory contains QC tools and documentation for validating the bias corre
 **Key Files:**
 - `compare_datasets.py` - Script for comparing NetCDF outputs between pipeline versions
 - `pipeline_comparison_analysis.md` - Detailed analysis of differences between pipelines (summarized below)
-- `qc/bias_corrected/original_vs_new.txt` - Results from initial QC comparison
+- `qc/bias_corrected/original_vs_fully_processed.txt` - Results from initial QC comparison
 
 ---
 
@@ -247,6 +247,6 @@ python qc/compare_datasets.py /old /new tasmax,pr,hursmin
 ## Further Documentation
 
 - **[pipeline_comparison_analysis.md](pipeline_comparison_analysis.md)** - Comprehensive technical analysis of all differences
-- **qc/bias_corrected/original_vs_new.txt** - Raw QC results showing specific failures
+- **qc/bias_corrected/original_vs_fully_processed.txt** - Raw QC results showing specific failures
 - **Original dataset:** [Zenodo v7783759](https://zenodo.org/records/7783759)
 
