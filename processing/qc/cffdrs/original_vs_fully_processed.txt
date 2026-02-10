@@ -1,0 +1,586 @@
+================================================================================
+BOREAL FIRE WEATHER PIPELINE - QUALITY CONTROL
+================================================================================
+Reference directory: /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/original_dataset/cffdrs
+New directory:       /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/output_shpmask/cffdrs
+Variables to check:  All
+Max files per var:   20
+================================================================================
+
+Finding matching files...
+Found 522 matching files
+
+Running QC on 20 files across 1 variable(s)...
+
+Variable: cffdrs (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: cffdrs_CNRM-CM6-1-HR_2022.nc
+  Variable 'isi': NaN patterns differ (4381 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.20e+01
+    Mean difference: 1.37e-01
+    Number of different values: 4592031/4594401
+  Variable 'bui': Values differ
+    Max difference: 1.06e+02
+    Mean difference: 2.69e-01
+    Number of different values: 3362432/4628930
+  Variable 'dc': Values differ
+    Max difference: 4.55e+01
+    Mean difference: 5.74e-01
+    Number of different values: 3647477/4628930
+  Variable 'fwi': NaN patterns differ (4381 locations)
+  Variable 'fwi': Values differ
+    Max difference: 3.20e+01
+    Mean difference: 2.99e-01
+    Number of different values: 4592255/4594401
+  Variable 'ffmc': NaN patterns differ (4381 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.39e+01
+    Mean difference: 4.14e-02
+    Number of different values: 4589767/36933401
+  Variable 'dmc': Values differ
+    Max difference: 1.15e+02
+    Mean difference: 2.52e-01
+    Number of different values: 3399690/4628930
+
+  ✗ FAIL: cffdrs_CNRM-CM6-1-HR_2037.nc
+  Variable 'isi': NaN patterns differ (4123 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.35e+01
+    Mean difference: 1.02e-01
+    Number of different values: 4599022/4601955
+  Variable 'bui': Values differ
+    Max difference: 9.41e+01
+    Mean difference: 1.23e-01
+    Number of different values: 3338184/4628930
+  Variable 'dc': Values differ
+    Max difference: 3.65e+01
+    Mean difference: 5.76e-01
+    Number of different values: 3676975/4628930
+  Variable 'fwi': NaN patterns differ (4123 locations)
+  Variable 'fwi': Values differ
+    Max difference: 2.37e+01
+    Mean difference: 1.96e-01
+    Number of different values: 4599407/4601955
+  Variable 'ffmc': NaN patterns differ (4123 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.27e+01
+    Mean difference: 3.70e-02
+    Number of different values: 4595377/36940955
+  Variable 'dmc': Values differ
+    Max difference: 9.04e+01
+    Mean difference: 1.10e-01
+    Number of different values: 3438175/4628930
+
+  ✗ FAIL: cffdrs_CNRM-CM6-1-HR_2050.nc
+  Variable 'isi': NaN patterns differ (22385 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.11e+01
+    Mean difference: 1.18e-01
+    Number of different values: 4465207/4467435
+  Variable 'bui': Values differ
+    Max difference: 6.68e+01
+    Mean difference: 1.71e-01
+    Number of different values: 3465212/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.80e+01
+    Mean difference: 6.15e-01
+    Number of different values: 3758764/4628930
+  Variable 'fwi': NaN patterns differ (22385 locations)
+  Variable 'fwi': Values differ
+    Max difference: 2.40e+01
+    Mean difference: 2.42e-01
+    Number of different values: 4465515/4467435
+  Variable 'ffmc': NaN patterns differ (22385 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 3.06e+01
+    Mean difference: 3.45e-02
+    Number of different values: 4462471/36806435
+  Variable 'dmc': Values differ
+    Max difference: 7.13e+01
+    Mean difference: 1.52e-01
+    Number of different values: 3583161/4628930
+
+  ✗ FAIL: cffdrs_CNRM-CM6-1-HR_2073.nc
+  Variable 'isi': NaN patterns differ (11936 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.20e+01
+    Mean difference: 1.38e-01
+    Number of different values: 4198128/4200150
+  Variable 'bui': Values differ
+    Max difference: 8.96e+01
+    Mean difference: 3.27e-01
+    Number of different values: 3554594/4628930
+  Variable 'dc': Values differ
+    Max difference: 4.33e+01
+    Mean difference: 5.90e-01
+    Number of different values: 3773651/4628930
+  Variable 'fwi': NaN patterns differ (11936 locations)
+  Variable 'fwi': Values differ
+    Max difference: 2.61e+01
+    Mean difference: 3.07e-01
+    Number of different values: 4198526/4200150
+  Variable 'ffmc': NaN patterns differ (11936 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.28e+01
+    Mean difference: 3.04e-02
+    Number of different values: 4195264/36539150
+  Variable 'dmc': Values differ
+    Max difference: 1.12e+02
+    Mean difference: 3.56e-01
+    Number of different values: 3664279/4628930
+
+  ✗ FAIL: cffdrs_CNRM-CM6-1-HR_2082.nc
+  Variable 'isi': NaN patterns differ (17379 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.15e+01
+    Mean difference: 1.35e-01
+    Number of different values: 4264569/4266675
+  Variable 'bui': Values differ
+    Max difference: 1.74e+02
+    Mean difference: 2.87e-01
+    Number of different values: 3617157/4628930
+  Variable 'dc': Values differ
+    Max difference: 4.51e+01
+    Mean difference: 6.79e-01
+    Number of different values: 3880931/4628930
+  Variable 'fwi': NaN patterns differ (17379 locations)
+  Variable 'fwi': Values differ
+    Max difference: 2.29e+01
+    Mean difference: 2.99e-01
+    Number of different values: 4264943/4266675
+  Variable 'ffmc': NaN patterns differ (17379 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.18e+01
+    Mean difference: 2.97e-02
+    Number of different values: 4261303/36605675
+  Variable 'dmc': Values differ
+    Max difference: 2.32e+02
+    Mean difference: 2.89e-01
+    Number of different values: 3781864/4628930
+
+  ✗ FAIL: cffdrs_CNRM-CM6-1-HR_2099.nc
+  Variable 'isi': NaN patterns differ (14025 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.37e+01
+    Mean difference: 1.29e-01
+    Number of different values: 4265873/4267819
+  Variable 'bui': Values differ
+    Max difference: 1.64e+02
+    Mean difference: 2.61e-01
+    Number of different values: 3658826/4628930
+  Variable 'dc': Values differ
+    Max difference: 3.85e+01
+    Mean difference: 6.21e-01
+    Number of different values: 3766889/4628930
+  Variable 'fwi': NaN patterns differ (14025 locations)
+  Variable 'fwi': Values differ
+    Max difference: 3.32e+01
+    Mean difference: 2.82e-01
+    Number of different values: 4266237/4267819
+  Variable 'ffmc': NaN patterns differ (14025 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 3.90e+01
+    Mean difference: 2.88e-02
+    Number of different values: 4263153/36606819
+  Variable 'dmc': Values differ
+    Max difference: 1.94e+02
+    Mean difference: 2.58e-01
+    Number of different values: 3816824/4628930
+
+  ✗ FAIL: cffdrs_EC-Earth3-Veg_2028.nc
+  Variable 'isi': Values differ
+    Max difference: 7.80e+00
+    Mean difference: 1.59e-02
+    Number of different values: 4626372/4628930
+  Variable 'bui': Values differ
+    Max difference: 1.63e+01
+    Mean difference: 3.27e-02
+    Number of different values: 3325025/4628930
+  Variable 'dc': Values differ
+    Max difference: 1.80e+01
+    Mean difference: 4.97e-01
+    Number of different values: 3517717/4628930
+  Variable 'fwi': Values differ
+    Max difference: 1.38e+01
+    Mean difference: 2.49e-02
+    Number of different values: 4626918/4628930
+  Variable 'ffmc': Values differ
+    Max difference: 2.11e+01
+    Mean difference: 1.28e-02
+    Number of different values: 4621708/36967930
+  Variable 'dmc': Values differ
+    Max difference: 1.66e+01
+    Mean difference: 2.40e-02
+    Number of different values: 3423060/4628930
+
+  ✗ FAIL: cffdrs_EC-Earth3-Veg_2065.nc
+  Variable 'isi': Values differ
+    Max difference: 6.03e+00
+    Mean difference: 1.33e-02
+    Number of different values: 4625090/4627510
+  Variable 'bui': Values differ
+    Max difference: 9.88e+00
+    Mean difference: 3.33e-02
+    Number of different values: 3481683/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.06e+01
+    Mean difference: 5.31e-01
+    Number of different values: 3654610/4628930
+  Variable 'fwi': Values differ
+    Max difference: 1.13e+01
+    Mean difference: 2.25e-02
+    Number of different values: 4625619/4627510
+  Variable 'ffmc': Values differ
+    Max difference: 1.97e+01
+    Mean difference: 1.05e-02
+    Number of different values: 4620499/36966510
+  Variable 'dmc': Values differ
+    Max difference: 1.48e+01
+    Mean difference: 2.22e-02
+    Number of different values: 3669729/4628930
+
+  ✗ FAIL: cffdrs_EC-Earth3-Veg_2073.nc
+  Variable 'isi': Values differ
+    Max difference: 4.75e+00
+    Mean difference: 1.18e-02
+    Number of different values: 4625783/4627880
+  Variable 'bui': Values differ
+    Max difference: 4.76e+00
+    Mean difference: 3.11e-02
+    Number of different values: 3456410/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.68e+01
+    Mean difference: 5.03e-01
+    Number of different values: 3674935/4628930
+  Variable 'fwi': Values differ
+    Max difference: 8.62e+00
+    Mean difference: 1.93e-02
+    Number of different values: 4626328/4627880
+  Variable 'ffmc': Values differ
+    Max difference: 1.59e+01
+    Mean difference: 9.55e-03
+    Number of different values: 4621460/36966880
+  Variable 'dmc': Values differ
+    Max difference: 7.42e+00
+    Mean difference: 2.06e-02
+    Number of different values: 3592544/4628930
+
+  ✗ FAIL: cffdrs_MPI-ESM1-2-HR_1996.nc
+  Variable 'isi': NaN patterns differ (741 locations)
+  Variable 'isi': Values differ
+    Max difference: 1.58e+01
+    Mean difference: 3.24e-02
+    Number of different values: 4620013/4622257
+  Variable 'bui': Values differ
+    Max difference: 2.61e+01
+    Mean difference: 4.62e-02
+    Number of different values: 3222775/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.87e+01
+    Mean difference: 5.35e-01
+    Number of different values: 3698928/4628930
+  Variable 'fwi': NaN patterns differ (741 locations)
+  Variable 'fwi': Values differ
+    Max difference: 2.53e+01
+    Mean difference: 6.29e-02
+    Number of different values: 4620258/4622257
+  Variable 'ffmc': NaN patterns differ (741 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.02e+01
+    Mean difference: 1.21e-02
+    Number of different values: 4616211/36961257
+  Variable 'dmc': Values differ
+    Max difference: 3.61e+01
+    Mean difference: 3.38e-02
+    Number of different values: 3299214/4628930
+
+  ✗ FAIL: cffdrs_MPI-ESM1-2-HR_2027.nc
+  Variable 'isi': NaN patterns differ (989 locations)
+  Variable 'isi': Values differ
+    Max difference: 7.87e+00
+    Mean difference: 1.81e-02
+    Number of different values: 4621963/4624483
+  Variable 'bui': Values differ
+    Max difference: 9.46e+00
+    Mean difference: 3.26e-02
+    Number of different values: 3172782/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.39e+01
+    Mean difference: 4.52e-01
+    Number of different values: 3497026/4628930
+  Variable 'fwi': NaN patterns differ (989 locations)
+  Variable 'fwi': Values differ
+    Max difference: 1.35e+01
+    Mean difference: 2.93e-02
+    Number of different values: 4622328/4624483
+  Variable 'ffmc': NaN patterns differ (989 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 1.82e+01
+    Mean difference: 1.17e-02
+    Number of different values: 4617843/36963483
+  Variable 'dmc': Values differ
+    Max difference: 9.17e+00
+    Mean difference: 2.27e-02
+    Number of different values: 3320181/4628930
+
+  ✗ FAIL: cffdrs_MPI-ESM1-2-HR_2095.nc
+  Variable 'isi': Values differ
+    Max difference: 8.31e+00
+    Mean difference: 3.52e-02
+    Number of different values: 4626123/4628930
+  Variable 'bui': Values differ
+    Max difference: 7.28e+01
+    Mean difference: 4.55e-02
+    Number of different values: 3327236/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.31e+01
+    Mean difference: 5.50e-01
+    Number of different values: 3634367/4628930
+  Variable 'fwi': Values differ
+    Max difference: 1.96e+01
+    Mean difference: 6.99e-02
+    Number of different values: 4626835/4628930
+  Variable 'ffmc': Values differ
+    Max difference: 3.42e+01
+    Mean difference: 1.11e-02
+    Number of different values: 4619697/36967930
+  Variable 'dmc': Values differ
+    Max difference: 1.06e+02
+    Mean difference: 3.26e-02
+    Number of different values: 3433620/4628930
+
+  ✗ FAIL: cffdrs_MRI-ESM2-0_1999.nc
+  Variable 'isi': NaN patterns differ (3692 locations)
+  Variable 'isi': Values differ
+    Max difference: 8.07e+00
+    Mean difference: 1.10e-02
+    Number of different values: 4464297/4466735
+  Variable 'bui': Values differ
+    Max difference: 1.03e+01
+    Mean difference: 2.96e-02
+    Number of different values: 3262567/4628930
+  Variable 'dc': Values differ
+    Max difference: 1.33e+01
+    Mean difference: 4.94e-01
+    Number of different values: 3575829/4628930
+  Variable 'fwi': NaN patterns differ (3692 locations)
+  Variable 'fwi': Values differ
+    Max difference: 1.33e+01
+    Mean difference: 1.78e-02
+    Number of different values: 4464578/4466735
+  Variable 'ffmc': NaN patterns differ (3692 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 1.55e+01
+    Mean difference: 6.76e-03
+    Number of different values: 4460598/36805735
+  Variable 'dmc': Values differ
+    Max difference: 1.04e+01
+    Mean difference: 2.04e-02
+    Number of different values: 3333293/4628930
+
+  ✗ FAIL: cffdrs_MRI-ESM2-0_2011.nc
+  Variable 'isi': NaN patterns differ (311 locations)
+  Variable 'isi': Values differ
+    Max difference: 9.93e+00
+    Mean difference: 7.43e-03
+    Number of different values: 4609978/4612527
+  Variable 'bui': Values differ
+    Max difference: 3.82e+00
+    Mean difference: 2.76e-02
+    Number of different values: 3147844/4628930
+  Variable 'dc': Values differ
+    Max difference: 2.00e+01
+    Mean difference: 4.59e-01
+    Number of different values: 3569372/4628930
+  Variable 'fwi': NaN patterns differ (311 locations)
+  Variable 'fwi': Values differ
+    Max difference: 9.09e+00
+    Mean difference: 1.12e-02
+    Number of different values: 4610269/4612527
+  Variable 'ffmc': NaN patterns differ (311 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 1.19e+01
+    Mean difference: 7.60e-03
+    Number of different values: 4606574/36951527
+  Variable 'dmc': Values differ
+    Max difference: 4.71e+00
+    Mean difference: 1.82e-02
+    Number of different values: 3243839/4628930
+
+  ✗ FAIL: cffdrs_MRI-ESM2-0_2035.nc
+  Variable 'isi': NaN patterns differ (4659 locations)
+  Variable 'isi': Values differ
+    Max difference: 5.87e+00
+    Mean difference: 8.47e-03
+    Number of different values: 4582341/4584064
+  Variable 'bui': Values differ
+    Max difference: 5.46e+00
+    Mean difference: 2.74e-02
+    Number of different values: 3092119/4628930
+  Variable 'dc': Values differ
+    Max difference: 1.73e+01
+    Mean difference: 4.66e-01
+    Number of different values: 3571817/4628930
+  Variable 'fwi': NaN patterns differ (4659 locations)
+  Variable 'fwi': Values differ
+    Max difference: 1.06e+01
+    Mean difference: 1.37e-02
+    Number of different values: 4582589/4584064
+  Variable 'ffmc': NaN patterns differ (4659 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 1.86e+01
+    Mean difference: 7.35e-03
+    Number of different values: 4579495/36923064
+  Variable 'dmc': Values differ
+    Max difference: 5.54e+00
+    Mean difference: 1.88e-02
+    Number of different values: 3199655/4628930
+
+  ✗ FAIL: cffdrs_MRI-ESM2-0_2049.nc
+  Variable 'isi': NaN patterns differ (3244 locations)
+  Variable 'isi': Values differ
+    Max difference: 4.63e+00
+    Mean difference: 6.32e-03
+    Number of different values: 4495884/4498464
+  Variable 'bui': Values differ
+    Max difference: 2.74e+00
+    Mean difference: 2.46e-02
+    Number of different values: 3222905/4628930
+  Variable 'dc': Values differ
+    Max difference: 1.80e+01
+    Mean difference: 4.60e-01
+    Number of different values: 3514243/4628930
+  Variable 'fwi': NaN patterns differ (3244 locations)
+  Variable 'fwi': Values differ
+    Max difference: 8.11e+00
+    Mean difference: 9.41e-03
+    Number of different values: 4496210/4498464
+  Variable 'ffmc': NaN patterns differ (3244 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.77e+01
+    Mean difference: 7.67e-03
+    Number of different values: 4492824/36837464
+  Variable 'dmc': Values differ
+    Max difference: 2.95e+00
+    Mean difference: 1.61e-02
+    Number of different values: 3310842/4628930
+
+  ✗ FAIL: cffdrs_MRI-ESM2-0_2062.nc
+  Variable 'isi': NaN patterns differ (1863 locations)
+  Variable 'isi': Values differ
+    Max difference: 4.60e+00
+    Mean difference: 5.82e-03
+    Number of different values: 4533345/4536062
+  Variable 'bui': Values differ
+    Max difference: 4.87e+00
+    Mean difference: 2.68e-02
+    Number of different values: 3181931/4628930
+  Variable 'dc': Values differ
+    Max difference: 1.77e+01
+    Mean difference: 5.01e-01
+    Number of different values: 3543349/4628930
+  Variable 'fwi': NaN patterns differ (1863 locations)
+  Variable 'fwi': Values differ
+    Max difference: 5.33e+00
+    Mean difference: 9.06e-03
+    Number of different values: 4533750/4536062
+  Variable 'ffmc': NaN patterns differ (1863 locations)
+  Variable 'ffmc': Values differ
+    Max difference: 2.20e+01
+    Mean difference: 7.88e-03
+    Number of different values: 4529438/36875062
+  Variable 'dmc': Values differ
+    Max difference: 5.18e+00
+    Mean difference: 1.65e-02
+    Number of different values: 3262536/4628930
+
+  ✗ FAIL: cffdrs_era5_1981.nc
+  Variable 'isi': Values differ
+    Max difference: 6.39e-05
+    Mean difference: 1.61e-07
+    Number of different values: 23600899/36967930
+  Variable 'bui': Values differ
+    Max difference: 3.25e-05
+    Mean difference: 4.68e-09
+    Number of different values: 44085/36967930
+  Variable 'dc': Values differ
+    Max difference: 1.22e-04
+    Mean difference: 3.59e-09
+    Number of different values: 97162/36967930
+  Variable 'fwi': Values differ
+    Max difference: 8.20e-05
+    Mean difference: 1.54e-07
+    Number of different values: 23991782/36967930
+  Variable 'ffmc': Values differ
+    Max difference: 4.58e-05
+    Mean difference: 9.93e-07
+    Number of different values: 7786657/36967930
+  Variable 'dmc': Values differ
+    Max difference: 3.05e-05
+    Mean difference: 5.29e-09
+    Number of different values: 13747/36967930
+
+  ✗ FAIL: cffdrs_era5_2000.nc
+  Variable 'isi': Values differ
+    Max difference: 3.05e-05
+    Mean difference: 1.61e-07
+    Number of different values: 23493661/36967930
+  Variable 'bui': Values differ
+    Max difference: 5.01e-05
+    Mean difference: 4.99e-09
+    Number of different values: 29755/36967930
+  Variable 'dc': Values differ
+    Max difference: 1.22e-04
+    Mean difference: 2.56e-09
+    Number of different values: 53440/36967930
+  Variable 'fwi': Values differ
+    Max difference: 6.18e-05
+    Mean difference: 1.53e-07
+    Number of different values: 23907583/36967930
+  Variable 'ffmc': Values differ
+    Max difference: 4.77e-05
+    Mean difference: 9.81e-07
+    Number of different values: 7666213/36967930
+  Variable 'dmc': Values differ
+    Max difference: 3.05e-05
+    Mean difference: 5.03e-09
+    Number of different values: 12434/36967930
+
+  ✗ FAIL: cffdrs_era5_2009.nc
+  Variable 'isi': Values differ
+    Max difference: 4.58e-05
+    Mean difference: 1.66e-07
+    Number of different values: 23233830/36967930
+  Variable 'bui': Values differ
+    Max difference: 4.72e-05
+    Mean difference: 7.79e-09
+    Number of different values: 55918/36967930
+  Variable 'dc': Values differ
+    Max difference: 6.10e-05
+    Mean difference: 4.48e-09
+    Number of different values: 93089/36967930
+  Variable 'fwi': Values differ
+    Max difference: 1.51e-04
+    Mean difference: 1.59e-07
+    Number of different values: 23672285/36967930
+  Variable 'ffmc': Values differ
+    Max difference: 4.96e-05
+    Mean difference: 9.58e-07
+    Number of different values: 7403152/36967930
+  Variable 'dmc': Values differ
+    Max difference: 3.05e-05
+    Mean difference: 8.69e-09
+    Number of different values: 22474/36967930
+
+  Summary: 0 passed, 20 failed
+
+================================================================================
+QUALITY CONTROL SUMMARY
+================================================================================
+Total files compared: 20
+Passed:               0
+Failed:               20
+
+✗ 20 file(s) differ - QC FAILED
+================================================================================

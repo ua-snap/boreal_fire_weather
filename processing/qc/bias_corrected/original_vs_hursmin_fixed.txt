@@ -1,0 +1,147 @@
+================================================================================
+BOREAL FIRE WEATHER PIPELINE - QUALITY CONTROL
+================================================================================
+Reference directory: /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/original_dataset/bias_corrected
+New directory:       /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/output_shpmask_hursmin_clip/bias_corrected
+Variables to check:  All
+Max files per var:   20
+================================================================================
+
+Finding matching files...
+Found 480 matching files
+
+Running QC on 20 files across 1 variable(s)...
+
+Variable: hursmin (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2003.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.31e+01
+    Mean difference: 3.83e-04
+    Number of different values: 722/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2019.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.02e+02
+    Mean difference: 4.40e-03
+    Number of different values: 1771/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2083.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.81e+02
+    Mean difference: 2.12e-02
+    Number of different values: 4852/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_1985.nc
+  Variable 'hursmin': Values differ
+    Max difference: 3.77e+00
+    Mean difference: 4.04e-05
+    Number of different values: 197/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2010.nc
+  Variable 'hursmin': Values differ
+    Max difference: 8.79e+00
+    Mean difference: 1.97e-05
+    Number of different values: 59/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2029.nc
+  Variable 'hursmin': Values differ
+    Max difference: 7.72e+00
+    Mean difference: 3.18e-05
+    Number of different values: 91/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2031.nc
+  Variable 'hursmin': Values differ
+    Max difference: 5.14e+00
+    Mean difference: 2.92e-05
+    Number of different values: 160/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2038.nc
+  Variable 'hursmin': Values differ
+    Max difference: 8.70e+00
+    Mean difference: 4.37e-05
+    Number of different values: 139/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2047.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.27e+01
+    Mean difference: 1.26e-04
+    Number of different values: 232/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2096.nc
+  Variable 'hursmin': Values differ
+    Max difference: 4.22e+01
+    Mean difference: 3.46e-04
+    Number of different values: 756/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_1997.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.11e+01
+    Mean difference: 1.94e-04
+    Number of different values: 281/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2009.nc
+  Variable 'hursmin': Values differ
+    Max difference: 9.10e+00
+    Mean difference: 8.50e-05
+    Number of different values: 201/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2028.nc
+  Variable 'hursmin': Values differ
+    Max difference: 8.69e+00
+    Mean difference: 8.73e-05
+    Number of different values: 183/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2075.nc
+  Variable 'hursmin': Values differ
+    Max difference: 2.81e+00
+    Mean difference: 7.13e-06
+    Number of different values: 28/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2098.nc
+  Variable 'hursmin': Values differ
+    Max difference: 3.15e-01
+    Mean difference: 6.80e-08
+    Number of different values: 1/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_1981.nc
+  Variable 'hursmin': Values differ
+    Max difference: 1.95e+01
+    Mean difference: 1.19e-03
+    Number of different values: 1208/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_1993.nc
+  Variable 'hursmin': Values differ
+    Max difference: 3.15e+01
+    Mean difference: 2.05e-03
+    Number of different values: 1702/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2002.nc
+  Variable 'hursmin': Values differ
+    Max difference: 2.44e+01
+    Mean difference: 2.48e-03
+    Number of different values: 1962/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2061.nc
+  Variable 'hursmin': Values differ
+    Max difference: 5.80e+01
+    Mean difference: 3.73e-02
+    Number of different values: 25340/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2077.nc
+  Variable 'hursmin': Values differ
+    Max difference: 8.08e+01
+    Mean difference: 1.71e-01
+    Number of different values: 75175/4628930
+
+  Summary: 0 passed, 20 failed
+
+================================================================================
+QUALITY CONTROL SUMMARY
+================================================================================
+Total files compared: 20
+Passed:               0
+Failed:               20
+
+✗ 20 file(s) differ - QC FAILED
+================================================================================

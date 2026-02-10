@@ -1,13 +1,16 @@
 """
-Fix Bias-Corrected GCM Data - Apply CLIP_HURSMIN Correction
+Fix Bias-Corrected GCM Data - Apply CLIP_HURSMIN Correction and Copy Variables
 
-This script reads existing bias-corrected GCM data and applies the CLIP_HURSMIN
-routine to clamp hursmin values to the valid range [0.0, 100.0]. This is useful
-when working with bias-corrected data from the original dataset that was not
-processed with the CLIP_HURSMIN correction.
+This script reads existing bias-corrected GCM data and:
+1. Applies the CLIP_HURSMIN routine to clamp hursmin values to [0.0, 100.0]
+2. Copies other variables (tasmax, pr, sfcWind) as-is to the output directory
+
+This is useful when working with bias-corrected data from the original dataset
+that was not processed with the CLIP_HURSMIN correction. All variables are
+processed so the output directory contains a complete set for CFFDRS calculation.
 
 The script reads from CMIP6_BIAS_CORRECTED (if set) or OUT_DIR/bias_corrected,
-applies the correction, and writes the fixed files to OUT_DIR/bias_corrected.
+applies corrections/copies, and writes files to OUT_DIR/bias_corrected.
 
 Usage:
     Set environment variables:
@@ -29,6 +32,7 @@ from config import (
     CMIP6_BIAS_CORRECTED,
     CLIP_HURSMIN,
     gcm_list,
+    metvars,
     hist_years,
     sim_periods,
 )
@@ -96,13 +100,10 @@ if __name__ == "__main__":
     # Get all years to process
     all_years = get_all_years()
 
-    # Only process hursmin variable
-    var = "hursmin"
+    # Calculate total number of files to process (all variables)
+    N = len(gcm_list) * len(metvars) * len(all_years)
 
-    # Calculate total number of files to process
-    N = len(gcm_list) * len(all_years)
-
-    with tqdm(total=N, desc="Processing hursmin files") as pbar:
+    with tqdm(total=N, desc="Processing all variables") as pbar:
         for gcm in gcm_list:
             # Input and output directories for this GCM
             in_dir = input_base.joinpath(gcm)
@@ -112,63 +113,65 @@ if __name__ == "__main__":
             if not out_dir.exists():
                 out_dir.mkdir(parents=True)
 
-            for yr in all_years:
-                pbar.set_postfix({"GCM": gcm, "year": yr})
+            for var in metvars:
+                for yr in all_years:
+                    pbar.set_postfix({"GCM": gcm, "var": var, "year": yr})
 
-                # Construct filename
-                filename = f"{var}_{gcm}_{yr}.nc"
-                in_file = in_dir.joinpath(filename)
-                out_file = out_dir.joinpath(filename)
+                    # Construct filename
+                    filename = f"{var}_{gcm}_{yr}.nc"
+                    in_file = in_dir.joinpath(filename)
+                    out_file = out_dir.joinpath(filename)
 
-                # Check if input file exists
-                if not in_file.exists():
-                    print(f"\n⚠️  Warning: File not found: {in_file}")
+                    # Check if input file exists
+                    if not in_file.exists():
+                        print(f"\n⚠️  Warning: File not found: {in_file}")
+                        pbar.update()
+                        continue
+
+                    # Check if output file already exists (skip if same as input)
+                    if out_file.exists() and in_file == out_file:
+                        # Skip if we're reading and writing to the same location
+                        pbar.update()
+                        continue
+
+                    try:
+                        # Load the data
+                        ds = xr.open_dataset(in_file, engine="h5netcdf")
+
+                        # Get the data array for this variable
+                        data_array = ds[var]
+
+                        # Apply clipping only to hursmin, pass through others unchanged
+                        if var == "hursmin":
+                            data_array = clip_hursmin(data_array)
+
+                        # Create new dataset with processed data
+                        ds_out = data_array.to_dataset(name=var)
+
+                        # Preserve attributes
+                        ds_out.attrs = ds.attrs
+                        ds_out[var].attrs = ds[var].attrs
+
+                        # Convert to float32 for storage efficiency
+                        ds_out = ds_out.astype("float32")
+
+                        # Use float64 for time to avoid precision loss with timestamps
+                        encoding = {
+                            var: {"dtype": "float32"},
+                            "time": {"dtype": "float64"},
+                        }
+
+                        # Write to output file
+                        ds_out.to_netcdf(out_file, engine="h5netcdf", encoding=encoding)
+
+                        # Close datasets
+                        ds.close()
+                        ds_out.close()
+
+                    except Exception as e:
+                        print(f"\n❌ Error processing {filename}: {str(e)}")
+
                     pbar.update()
-                    continue
-
-                # Check if output file already exists (skip if same as input)
-                if out_file.exists() and in_file == out_file:
-                    # Skip if we're reading and writing to the same location
-                    pbar.update()
-                    continue
-
-                try:
-                    # Load the data
-                    ds = xr.open_dataset(in_file, engine="h5netcdf")
-
-                    # Get the hursmin data array
-                    hursmin_data = ds[var]
-
-                    # Apply clipping
-                    hursmin_clipped = clip_hursmin(hursmin_data)
-
-                    # Create new dataset with clipped data
-                    ds_clipped = hursmin_clipped.to_dataset(name=var)
-
-                    # Preserve attributes
-                    ds_clipped.attrs = ds.attrs
-                    ds_clipped[var].attrs = ds[var].attrs
-
-                    # Convert to float32 for storage efficiency
-                    ds_clipped = ds_clipped.astype("float32")
-
-                    # Use float64 for time to avoid precision loss with timestamps
-                    encoding = {
-                        var: {"dtype": "float32"},
-                        "time": {"dtype": "float64"},
-                    }
-
-                    # Write to output file
-                    ds_clipped.to_netcdf(out_file, engine="h5netcdf", encoding=encoding)
-
-                    # Close datasets
-                    ds.close()
-                    ds_clipped.close()
-
-                except Exception as e:
-                    print(f"\n❌ Error processing {filename}: {str(e)}")
-
-                pbar.update()
 
     # Calculate and display elapsed time
     end_time = time.time()

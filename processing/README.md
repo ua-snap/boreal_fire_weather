@@ -33,10 +33,10 @@ Shapefile to subset the data during bias correction:
 export SHP_MASK=/path/to/shapefile/mask.shp
 ```
 
-External bias-corrected data (for skipping steps 01-03):
+External bias-corrected data (for 03b script input only):
 ```bash
-# Point to existing bias-corrected files if not processing from scratch
-# If not set, will use OUT_DIR/bias_corrected
+# Points 03b to existing bias-corrected files to apply hursmin correction
+# If not set, 03b will use OUT_DIR/bias_corrected as both input and output
 export CMIP6_BIAS_CORRECTED=/path/to/existing/bias_corrected
 ```
 
@@ -151,7 +151,7 @@ Calculate Canadian Forest Fire Danger Rating System (CFFDRS) indices:
 - Daily Severity Rating (DSR)
 
 Calculated for both ERA5 and bias-corrected CMIP6 data.
-- Input: `OUT_DIR/bias_corrected/{gcm}/` (or `CMIP6_BIAS_CORRECTED` if set)
+- Input: `OUT_DIR/bias_corrected/{gcm}/` (output from 03 or 03b)
 - Output: `OUT_DIR/cffdrs/era5/` and `OUT_DIR/cffdrs/{gcm}/`
 
 #### 03b_fix_bias_corrected_gcms.py
@@ -187,7 +187,7 @@ python 04_calculate_cffdrs.py
 ```
 
 #### Option 3: Using External Bias-Corrected Data (Correction Only)
-If you have existing bias-corrected data (e.g., from an earlier version of the pipeline) that needs the hursmin clamping correction applied:
+If you have existing bias-corrected data (e.g., from an earlier version of the pipeline) that needs the `hursmin` clamping correction applied:
 
 ```bash
 # Point to external bias-corrected data
@@ -205,12 +205,11 @@ export CLIP_HURSMIN=TRUE
 # Apply hursmin clamping correction only
 python 03b_fix_bias_corrected_gcms.py
 
-# Calculate CFFDRS indices using the corrected data
-# (will automatically use CMIP6_BIAS_CORRECTED location)
+# Calculate CFFDRS indices using the corrected data from OUT_DIR
 python 04_calculate_cffdrs.py
 ```
 
-**Note:** The `03b_fix_bias_corrected_gcms.py` script is specifically designed for cases where you cannot reproduce the original bias correction process but need to apply the hursmin value clamping to ensure physically valid humidity values [0, 100] before calculating fire weather indices.
+**Note:** The `03b_fix_bias_corrected_gcms.py` script reads from `CMIP6_BIAS_CORRECTED` (if set) or `OUT_DIR/bias_corrected` (if not set), applies corrections, and writes all variables to `OUT_DIR/bias_corrected`. The `04_calculate_cffdrs.py` script always reads from `OUT_DIR/bias_corrected`.
 
 ### Quality Control
 
