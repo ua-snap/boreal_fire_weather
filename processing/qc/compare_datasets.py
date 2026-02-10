@@ -139,10 +139,10 @@ def align_dimensions(ds1: xr.Dataset, ds2: xr.Dataset, var: str) -> tuple:
                     f" (dimensions reordered from {dims2} to {dims1})",
                 )
         except Exception as e:
-            pass
-
+            # If we can't align, return arrays as-is with failure flag
+            return arr1.values, arr2.values, False, f" (cannot align: {dims1} vs {dims2})"
     # If we can't align, return arrays as-is with failure flag
-    return arr1.values, arr2.values, False, f" (cannot align: {dims1} vs {dims2})"
+    return arr1.values, arr2.values, False, f" (different dimensions: {dims1} vs {dims2})"
 
 
 def compare_datasets(file1: Path, file2: Path) -> tuple:
