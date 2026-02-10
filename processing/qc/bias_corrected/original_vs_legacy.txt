@@ -1,0 +1,599 @@
+================================================================================
+BOREAL FIRE WEATHER PIPELINE - QUALITY CONTROL
+================================================================================
+Reference directory: /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/original_dataset/bias_corrected
+New directory:       /import/beegfs/CMIP6/jdpaul3/boreal_fire_weather_data/output_legacy/bias_corrected
+Variables to check:  All
+Max files per var:   20
+================================================================================
+
+Finding matching files...
+Found 1920 matching files
+
+Running QC on 80 files across 4 variable(s)...
+
+Variable: hursmin (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_1981.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'hursmin': Values differ
+    Max difference: 2.31e+01
+    Mean difference: 3.24e-02
+    Number of different values: 2159830/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2016.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'hursmin': Values differ
+    Max difference: 5.04e+01
+    Mean difference: 2.97e-02
+    Number of different values: 2116452/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2027.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.37e+01
+    Mean difference: 2.91e-02
+    Number of different values: 2123299/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2055.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.65e+01
+    Mean difference: 3.08e-02
+    Number of different values: 2131163/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2058.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'hursmin': Values differ
+    Max difference: 2.22e+01
+    Mean difference: 3.18e-02
+    Number of different values: 2129947/4628930
+
+  ✗ FAIL: hursmin_CNRM-CM6-1-HR_2061.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'hursmin': Values differ
+    Max difference: 3.37e+01
+    Mean difference: 3.23e-02
+    Number of different values: 2138737/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_1994.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 2.04e+01
+    Mean difference: 2.56e-02
+    Number of different values: 2130461/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2047.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.73e+01
+    Mean difference: 2.85e-02
+    Number of different values: 2171393/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2083.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 3.20e+01
+    Mean difference: 2.69e-02
+    Number of different values: 2134337/4628930
+
+  ✗ FAIL: hursmin_EC-Earth3-Veg_2097.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.81e+01
+    Mean difference: 2.65e-02
+    Number of different values: 2146290/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2015.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 8.10e+00
+    Mean difference: 2.58e-02
+    Number of different values: 2136107/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2024.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 9.76e+00
+    Mean difference: 2.59e-02
+    Number of different values: 2123581/4628930
+
+  ✗ FAIL: hursmin_MPI-ESM1-2-HR_2093.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.51e+01
+    Mean difference: 2.56e-02
+    Number of different values: 2103962/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_1994.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.04e+01
+    Mean difference: 3.50e-02
+    Number of different values: 2135500/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2033.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.86e+01
+    Mean difference: 3.69e-02
+    Number of different values: 2116639/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2053.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.24e+01
+    Mean difference: 3.93e-02
+    Number of different values: 2136784/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2065.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 2.05e+01
+    Mean difference: 4.10e-02
+    Number of different values: 2134058/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2069.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 9.82e+00
+    Mean difference: 3.76e-02
+    Number of different values: 2136614/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2073.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.82e+01
+    Mean difference: 4.07e-02
+    Number of different values: 2115253/4628930
+
+  ✗ FAIL: hursmin_MRI-ESM2-0_2089.nc
+  Variable 'hursmin': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'hursmin': Values differ
+    Max difference: 1.42e+01
+    Mean difference: 4.24e-02
+    Number of different values: 2138327/4628930
+
+  Summary: 0 passed, 20 failed
+
+Variable: pr (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2014.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'pr': Values differ
+    Max difference: 9.25e+00
+    Mean difference: 1.14e-02
+    Number of different values: 1533452/36967930
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2030.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'pr': Values differ
+    Max difference: 7.29e+00
+    Mean difference: 1.15e-02
+    Number of different values: 1495979/36967930
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2035.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'pr': Values differ
+    Max difference: 6.14e+00
+    Mean difference: 1.08e-02
+    Number of different values: 1602493/36967930
+
+  ✗ FAIL: pr_CNRM-CM6-1-HR_2063.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'pr': Values differ
+    Max difference: 8.27e+00
+    Mean difference: 1.15e-02
+    Number of different values: 1568818/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_1980.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 5.10e+00
+    Mean difference: 3.66e-03
+    Number of different values: 1260282/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2002.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 7.03e+00
+    Mean difference: 3.78e-03
+    Number of different values: 1248006/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2003.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.77e+00
+    Mean difference: 3.66e-03
+    Number of different values: 1240902/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2004.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.06e+00
+    Mean difference: 3.68e-03
+    Number of different values: 1271718/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2022.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 7.52e+00
+    Mean difference: 3.97e-03
+    Number of different values: 1273864/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2065.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.81e+00
+    Mean difference: 3.67e-03
+    Number of different values: 1480538/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2078.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.45e+00
+    Mean difference: 3.61e-03
+    Number of different values: 1548769/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2080.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 1.06e+01
+    Mean difference: 3.58e-03
+    Number of different values: 1461262/36967930
+
+  ✗ FAIL: pr_EC-Earth3-Veg_2093.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.99e+00
+    Mean difference: 3.67e-03
+    Number of different values: 1553604/36967930
+
+  ✗ FAIL: pr_MPI-ESM1-2-HR_2014.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 5.80e+00
+    Mean difference: 3.48e-03
+    Number of different values: 1260934/36967930
+
+  ✗ FAIL: pr_MPI-ESM1-2-HR_2061.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 8.18e+00
+    Mean difference: 3.88e-03
+    Number of different values: 1235286/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2021.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.77e+00
+    Mean difference: 1.91e-03
+    Number of different values: 1338311/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2040.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.47e+00
+    Mean difference: 2.06e-03
+    Number of different values: 1541783/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2041.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.17e+00
+    Mean difference: 1.97e-03
+    Number of different values: 1403514/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2053.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 6.95e+00
+    Mean difference: 2.02e-03
+    Number of different values: 1466652/36967930
+
+  ✗ FAIL: pr_MRI-ESM2-0_2074.nc
+  Variable 'pr': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'pr': Values differ
+    Max difference: 8.23e+00
+    Mean difference: 2.10e-03
+    Number of different values: 1549556/36967930
+
+  Summary: 0 passed, 20 failed
+
+Variable: sfcWind (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_1983.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.44e+00
+    Mean difference: 1.08e-02
+    Number of different values: 2150119/4628930
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_1990.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'sfcWind': Values differ
+    Max difference: 4.30e+00
+    Mean difference: 1.10e-02
+    Number of different values: 2142074/4628930
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_1992.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.41e+00
+    Mean difference: 1.06e-02
+    Number of different values: 2137049/4628930
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_2010.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.90e+00
+    Mean difference: 1.12e-02
+    Number of different values: 2150462/4628930
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_2022.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.86e+00
+    Mean difference: 1.08e-02
+    Number of different values: 2143956/4628930
+
+  ✗ FAIL: sfcWind_CNRM-CM6-1-HR_2068.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.81e+00
+    Mean difference: 1.01e-02
+    Number of different values: 2114962/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_1996.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.53e+00
+    Mean difference: 1.01e-02
+    Number of different values: 2145428/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2003.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 4.04e+00
+    Mean difference: 9.56e-03
+    Number of different values: 2126487/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2032.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.50e+00
+    Mean difference: 1.00e-02
+    Number of different values: 2138987/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2052.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 3.44e+00
+    Mean difference: 1.02e-02
+    Number of different values: 2152798/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2069.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 3.08e+00
+    Mean difference: 9.38e-03
+    Number of different values: 2131159/4628930
+
+  ✗ FAIL: sfcWind_EC-Earth3-Veg_2071.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.74e+00
+    Mean difference: 9.14e-03
+    Number of different values: 2134147/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2002.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.75e+00
+    Mean difference: 1.09e-02
+    Number of different values: 2145607/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2046.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 3.20e+00
+    Mean difference: 1.01e-02
+    Number of different values: 2132871/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2091.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 1.97e+00
+    Mean difference: 9.71e-03
+    Number of different values: 2121586/4628930
+
+  ✗ FAIL: sfcWind_MPI-ESM1-2-HR_2098.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.32e+00
+    Mean difference: 9.61e-03
+    Number of different values: 2119755/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2010.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 4.65e+00
+    Mean difference: 1.07e-02
+    Number of different values: 2160737/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2017.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 3.27e+00
+    Mean difference: 1.03e-02
+    Number of different values: 2146888/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2029.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.57e+00
+    Mean difference: 1.11e-02
+    Number of different values: 2160622/4628930
+
+  ✗ FAIL: sfcWind_MRI-ESM2-0_2047.nc
+  Variable 'sfcWind': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'sfcWind': Values differ
+    Max difference: 2.63e+00
+    Mean difference: 1.03e-02
+    Number of different values: 2143138/4628930
+
+  Summary: 0 passed, 20 failed
+
+Variable: tasmax (20 files)
+--------------------------------------------------------------------------------
+  ✗ FAIL: tasmax_CNRM-CM6-1-HR_2024.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.07e+00
+    Mean difference: 1.30e-02
+    Number of different values: 2163088/4628930
+
+  ✗ FAIL: tasmax_CNRM-CM6-1-HR_2034.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.53e+00
+    Mean difference: 1.36e-02
+    Number of different values: 2178305/4628930
+
+  ✗ FAIL: tasmax_CNRM-CM6-1-HR_2050.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.30e+00
+    Mean difference: 1.24e-02
+    Number of different values: 2136777/4628930
+
+  ✗ FAIL: tasmax_CNRM-CM6-1-HR_2093.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'tasmax': Values differ
+    Max difference: 1.88e+00
+    Mean difference: 1.25e-02
+    Number of different values: 2174292/4628930
+
+  ✗ FAIL: tasmax_CNRM-CM6-1-HR_2097.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['lat', 'lon', 'time'])
+  Variable 'tasmax': Values differ
+    Max difference: 4.15e+00
+    Mean difference: 1.45e-02
+    Number of different values: 2241502/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_1991.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.33e+00
+    Mean difference: 1.50e-02
+    Number of different values: 2240660/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2004.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 1.78e+00
+    Mean difference: 1.22e-02
+    Number of different values: 2123727/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2005.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 1.67e+00
+    Mean difference: 1.34e-02
+    Number of different values: 2125882/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2024.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.46e+00
+    Mean difference: 1.35e-02
+    Number of different values: 2102391/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2049.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.17e+00
+    Mean difference: 1.56e-02
+    Number of different values: 2157302/4628930
+
+  ✗ FAIL: tasmax_EC-Earth3-Veg_2075.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.18e+00
+    Mean difference: 1.46e-02
+    Number of different values: 2092048/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_1989.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 3.35e+00
+    Mean difference: 1.51e-02
+    Number of different values: 2194845/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_1999.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.40e+00
+    Mean difference: 1.48e-02
+    Number of different values: 2205304/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2014.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.16e+00
+    Mean difference: 1.36e-02
+    Number of different values: 2173128/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2020.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 1.69e+00
+    Mean difference: 1.40e-02
+    Number of different values: 2130533/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2076.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.04e+00
+    Mean difference: 1.44e-02
+    Number of different values: 2184306/4628930
+
+  ✗ FAIL: tasmax_MPI-ESM1-2-HR_2077.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.52e+00
+    Mean difference: 1.49e-02
+    Number of different values: 2125471/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_1988.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.61e+00
+    Mean difference: 1.47e-02
+    Number of different values: 2151953/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2045.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 3.05e+00
+    Mean difference: 1.64e-02
+    Number of different values: 2187624/4628930
+
+  ✗ FAIL: tasmax_MRI-ESM2-0_2055.nc
+  Variable 'tasmax': Note (dimensions reordered from ['time', 'lon', 'lat'] to ['time', 'lat', 'lon'])
+  Variable 'tasmax': Values differ
+    Max difference: 2.98e+00
+    Mean difference: 1.45e-02
+    Number of different values: 2162017/4628930
+
+  Summary: 0 passed, 20 failed
+
+================================================================================
+QUALITY CONTROL SUMMARY
+================================================================================
+Total files compared: 80
+Passed:               0
+Failed:               80
+
+✗ 80 file(s) differ - QC FAILED
+================================================================================
