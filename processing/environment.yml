@@ -14,4 +14,3 @@ dependencies:
   - tqdm
   - xarray
   - xclim=0.40.0
-prefix: /home/jdpaul3/miniconda3/envs/cffdrs

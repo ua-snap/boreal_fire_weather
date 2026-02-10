@@ -128,12 +128,6 @@ if __name__ == "__main__":
                         pbar.update()
                         continue
 
-                    # Check if output file already exists (skip if same as input)
-                    if out_file.exists() and in_file == out_file:
-                        # Skip if we're reading and writing to the same location
-                        pbar.update()
-                        continue
-
                     try:
                         # Load the data
                         ds = xr.open_dataset(in_file, engine="h5netcdf")
