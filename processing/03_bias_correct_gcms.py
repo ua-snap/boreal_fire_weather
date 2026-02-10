@@ -308,8 +308,9 @@ def quantile_delta_mapping_with_persisted(
     # Check units
     same_units(ref, sim)
 
-    # Align time
-    sim = sim.assign_coords(time=sim.time.dt.floor("D"))
+    # Align time (skip normalization in legacy mode)
+    if not LEGACY_MODE:
+        sim = sim.assign_coords(time=sim.time.dt.floor("D"))
 
     # Regrid sim to match ref/hst
     _, _, sim = dimcheck_and_regrid(ref, hst, sim, **get_kwargs(("regrid",), kwargs))
