@@ -26,9 +26,18 @@ export CMIP6_PROCESSED=/path/to/cmip6/processed
 export OUT_DIR=/path/for/output/files
 ```
 
-Optionally, include a shapefile to subset the data during the bias correction step
+**Optional Settings:**
+
+Shapefile to subset the data during bias correction:
 ```bash
 export SHP_MASK=/path/to/shapefile/mask.shp
+```
+
+External bias-corrected data (for skipping steps 01-03):
+```bash
+# Point to existing bias-corrected files if not processing from scratch
+# If not set, will use OUT_DIR/bias_corrected
+export CMIP6_BIAS_CORRECTED=/path/to/existing/bias_corrected
 ```
 
 **Optional Configuration Flags:**
@@ -142,7 +151,66 @@ Calculate Canadian Forest Fire Danger Rating System (CFFDRS) indices:
 - Daily Severity Rating (DSR)
 
 Calculated for both ERA5 and bias-corrected CMIP6 data.
+- Input: `OUT_DIR/bias_corrected/{gcm}/` (or `CMIP6_BIAS_CORRECTED` if set)
 - Output: `OUT_DIR/cffdrs/era5/` and `OUT_DIR/cffdrs/{gcm}/`
+
+#### 03b_fix_bias_corrected_gcms.py
+Apply hursmin clamping correction to existing bias-corrected data:
+- Reads existing bias-corrected GCM files
+- Applies `CLIP_HURSMIN` routine to clamp hursmin values to [0, 100]
+- Writes corrected files to `OUT_DIR/bias_corrected/{gcm}/`
+- Use when working with external bias-corrected data that wasn't processed with the clipping correction
+- Input: `CMIP6_BIAS_CORRECTED/` (or `OUT_DIR/bias_corrected/` if not set)
+- Output: `OUT_DIR/bias_corrected/{gcm}/`
+
+### Alternative Workflows
+
+#### Option 1: Full Pipeline (Default)
+Process everything from scratch:
+```bash
+python 01_process_era5.py      # Process ERA5 raw data
+python 02_process_cmip6.py     # Process CMIP6 raw data
+python 03_bias_correct_gcms.py # Apply bias correction with QDM
+python 04_calculate_cffdrs.py  # Calculate fire weather indices
+```
+
+#### Option 2: Using Pre-processed Data
+Skip steps 01-02 if you already have processed daily data:
+```bash
+# Point to existing processed data
+export ERA5_PROCESSED=/path/to/existing/era5/processed
+export CMIP6_PROCESSED=/path/to/existing/cmip6/processed
+
+# Run bias correction and CFFDRS calculation
+python 03_bias_correct_gcms.py
+python 04_calculate_cffdrs.py
+```
+
+#### Option 3: Using External Bias-Corrected Data (Correction Only)
+If you have existing bias-corrected data (e.g., from an earlier version of the pipeline) that needs the hursmin clamping correction applied:
+
+```bash
+# Point to external bias-corrected data
+export CMIP6_BIAS_CORRECTED=/path/to/existing/bias_corrected
+
+# Point to ERA5 processed data (needed for CFFDRS calculation)
+export ERA5_PROCESSED=/path/to/existing/era5/processed
+
+# Set output directory for corrected files
+export OUT_DIR=/path/for/corrected/output
+
+# Enable hursmin clipping (if not already applied)
+export CLIP_HURSMIN=TRUE
+
+# Apply hursmin clamping correction only
+python 03b_fix_bias_corrected_gcms.py
+
+# Calculate CFFDRS indices using the corrected data
+# (will automatically use CMIP6_BIAS_CORRECTED location)
+python 04_calculate_cffdrs.py
+```
+
+**Note:** The `03b_fix_bias_corrected_gcms.py` script is specifically designed for cases where you cannot reproduce the original bias correction process but need to apply the hursmin value clamping to ensure physically valid humidity values [0, 100] before calculating fire weather indices.
 
 ### Quality Control
 
