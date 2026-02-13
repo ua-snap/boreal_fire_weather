@@ -1,0 +1,23 @@
+name: cffdrs_qc
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - numpy
+  - xarray
+  - pandas
+  - matplotlib
+  - cartopy
+  - geopandas
+  - shapely
+  - netcdf4
+  - h5netcdf
+  - jupyterlab
+  - notebook
+  - papermill
+  - nbconvert
+  - ipykernel
+  - pip
+  - pip:
+    - kaleido
