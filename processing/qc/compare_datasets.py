@@ -83,25 +83,43 @@ def find_matching_files(dir1: Path, dir2: Path) -> dict:
     return {name: (files1[name], files2[name]) for name in common_names}
 
 
-def group_files_by_variable(file_pairs: dict) -> dict:
+def group_files_by_variable(file_pairs: dict, variables: list = None) -> dict:
     """
     Group file pairs by variable name (extracted from filename).
+
+    Special handling: If filename contains 'cffdrs', group under each CFFDRS index variable (ffmc, dmc, dc, isi, bui, fwi).
+    If a user-defined variable list is provided, only include cffdrs variables in that list.
 
     Parameters
     ----------
     file_pairs : dict
         Dictionary of filename: (path1, path2) pairs
+    variables : list, optional
+        List of variable names to check. If None, use all cffdrs variables.
 
     Returns
     -------
     dict : Dictionary mapping variable names to lists of file pairs
     """
     var_groups = defaultdict(list)
+    cffdrs_vars = ["ffmc", "dmc", "dc", "isi", "bui", "fwi"]
+
+    # If variables is provided, filter cffdrs_vars accordingly
+    cffdrs_vars_to_use = cffdrs_vars
+    if variables is not None:
+        cffdrs_vars_to_use = [v for v in cffdrs_vars if v in variables]
 
     for filename, (path1, path2) in file_pairs.items():
-        # Extract variable name (assumes format: varname_*)
-        var_name = filename.split("_")[0]
-        var_groups[var_name].append((filename, path1, path2))
+        if "cffdrs" in filename.lower():
+            # Group this file under each CFFDRS index variable (filtered by user list if provided)
+            for v in cffdrs_vars_to_use:
+                var_groups[v].append((filename, path1, path2))
+        else:
+            # Extract variable name (assumes format: varname_*)
+            var_name = filename.split("_")[0]
+            # If variables is provided, only include if in list
+            if (variables is None) or (var_name in variables):
+                var_groups[var_name].append((filename, path1, path2))
 
     return dict(var_groups)
 
@@ -469,17 +487,17 @@ def run_qc(
     file_pairs = find_matching_files(old_path, new_path)
     print(f"Found {len(file_pairs)} matching files\n")
 
-    # Group by variable
-    var_groups = group_files_by_variable(file_pairs)
 
-    # Filter by requested variables
-    if variables:
-        var_groups = {
-            var: files for var, files in var_groups.items() if var in variables
-        }
-        if not var_groups:
+
+    # Group by variable (with cffdrs handled as multi-var, and respecting user variable list)
+    var_groups = group_files_by_variable(file_pairs, variables)
+
+    if not var_groups:
+        if variables:
             print(f"ERROR: No files found for requested variables: {variables}")
-            sys.exit(1)
+        else:
+            print(f"ERROR: No files found for any variables.")
+        sys.exit(1)
 
     # Sample files if max_files specified
     if max_files:
@@ -508,7 +526,68 @@ def run_qc(
         var_failed = 0
 
         for filename, path1, path2 in sorted(files):
-            is_identical, message, stats = compare_datasets(path1, path2)
+            # For cffdrs files, compare only the relevant variable
+            if var_name in ["ffmc", "dmc", "dc", "isi", "bui", "fwi"]:
+                # Compare only this index variable
+                try:
+                    ds1 = xr.open_dataset(path1)
+                    ds2 = xr.open_dataset(path2)
+                    if var_name not in ds1.data_vars or var_name not in ds2.data_vars:
+                        is_identical = False
+                        message = f"Variable '{var_name}' not found in one or both files."
+                        stats = {}
+                    else:
+                        arr1, arr2, aligned, align_msg = align_dimensions(ds1, ds2, var_name)
+                        if arr1.shape != arr2.shape:
+                            is_identical = False
+                            message = f"  Variable '{var_name}': Shape mismatch ({arr1.shape} vs {arr2.shape}){align_msg}"
+                            stats = {}
+                        else:
+                            nan_mask1 = np.isnan(arr1)
+                            nan_mask2 = np.isnan(arr2)
+                            if not np.array_equal(nan_mask1, nan_mask2):
+                                is_identical = False
+                                nan_diff = np.sum(nan_mask1 != nan_mask2)
+                                message = f"  Variable '{var_name}': NaN patterns differ ({nan_diff} locations)"
+                                stats = {}
+                            else:
+                                valid_mask = ~nan_mask1 & ~nan_mask2
+                                if np.any(valid_mask):
+                                    vals1 = arr1[valid_mask]
+                                    vals2 = arr2[valid_mask]
+                                    if not np.allclose(vals1, vals2, rtol=0, atol=0, equal_nan=True):
+                                        is_identical = False
+                                        max_diff = np.max(np.abs(vals1 - vals2))
+                                        mean_diff = np.mean(np.abs(vals1 - vals2))
+                                        n_diff = np.sum(vals1 != vals2)
+                                        message = (
+                                            f"  Variable '{var_name}': Values differ\n"
+                                            f"    Max difference: {max_diff:.2e}\n"
+                                            f"    Mean difference: {mean_diff:.2e}\n"
+                                            f"    Number of different values: {n_diff}/{len(vals1)}"
+                                        )
+                                        stats = {
+                                            "max_diff": float(max_diff),
+                                            "mean_diff": float(mean_diff),
+                                            "n_diff": int(n_diff),
+                                            "n_total": int(len(vals1)),
+                                        }
+                                    else:
+                                        is_identical = True
+                                        message = "Datasets are identical"
+                                        stats = {}
+                                else:
+                                    is_identical = True
+                                    message = "Datasets are identical (all values are NaN)"
+                                    stats = {}
+                    ds1.close()
+                    ds2.close()
+                except Exception as e:
+                    is_identical = False
+                    message = f"Error opening or comparing files: {e}"
+                    stats = {}
+            else:
+                is_identical, message, stats = compare_datasets(path1, path2)
 
             if is_identical:
                 var_passed += 1
@@ -521,15 +600,8 @@ def run_qc(
 
                 # Collect failed files for visualization
                 if not text_only:
-                    # Determine which variables to visualize
-                    if var_name == "cffdrs":
-                        # For cffdrs files, extract all index variables
-                        vars_to_viz = ["ffmc", "dmc", "dc", "isi", "bui", "fwi"]
-                    else:
-                        # For other files, use the variable name from the filename
-                        vars_to_viz = [var_name]
-
-                    files_to_visualize.append((filename, path1, path2, vars_to_viz))
+                    # For cffdrs, only visualize the failing variable
+                    files_to_visualize.append((filename, path1, path2, [var_name]))
 
             print(f"  {status}: {filename}")
             if not is_identical:
