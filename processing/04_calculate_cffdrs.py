@@ -109,6 +109,16 @@ def ffmc_calc(tas, pr, sfcWind, hurs, ffmc0: np.ndarray = 85.0) -> np.ndarray:
     # than this when moisture content (m) is less than 0.05.
     ffmc = np.where(ffmc > 101.0, 101.0, ffmc)
 
+    # Mask output where any input is NaN
+    mask = (
+        np.isnan(tas)
+        | np.isnan(pr)
+        | np.isnan(sfcWind)
+        | np.isnan(hurs)
+        | np.isnan(ffmc0)
+    )
+    ffmc = np.where(mask, np.nan, ffmc)
+
     return ffmc[...]
 
 
