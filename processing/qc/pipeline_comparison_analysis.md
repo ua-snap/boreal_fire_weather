@@ -8,15 +8,15 @@
 
 ## Executive Summary
 
-An initial QC comparison revealed that **all 80 tested files differ** between the original and new pipelines. Investigation identified three critical differences in data processing:
+An initial QC comparison revealed that **all 80 tested files differ** between the original and new CMIP6 bias correction pipelines. Investigation identified three critical differences in data processing:
 
-1. **Dimension Ordering** - New pipeline enforces consistent `(time, lat, lon)` ordering while original preserves internal xarray ordering
+1. **Dimension Ordering** - New pipeline enforces consistent `(time, lat, lon)` ordering while original preserves internal `xarray` ordering
 
 2. **Time Coordinate Alignment** - New pipeline explicitly aligns and normalizes time coordinates between ERA5 and GCM data; original does not
 
 3. **Chunking Strategy Bug** - Original pipeline incorrectly uses lon dimension size for both lat and lon chunks; new pipeline fixes this and uses optimized auto-chunking
 
-**LEGACY_MODE Testing:** A compatibility mode was implemented to replicate the original pipeline's behavior (including bugs). However, QC testing showed that **LEGACY_MODE outputs still differ from the original dataset**, indicating that additional processing differences exist beyond the three identified factors.
+**`LEGACY_MODE` Testing:** A compatibility mode was implemented to replicate the original pipeline's behavior (including bugs). However, QC testing showed that **`LEGACY_MODE` outputs still differ from the original dataset**, indicating that additional processing differences exist beyond the three identified factors.
 
 **Implication:** Achieving byte-for-byte reproducibility of the original dataset may require further investigation, or the refactored pipeline should be treated as an improved v2.0 with methodological enhancements rather than a strict replication of v1.0.
 
@@ -24,7 +24,7 @@ An initial QC comparison revealed that **all 80 tested files differ** between th
 
 ## QC Results Summary
 
-**Comparison:** Original dataset vs LEGACY_MODE output (with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE`)
+**Comparison:** Original dataset vs `LEGACY_MODE` output (with `LEGACY_MODE=TRUE` and `CLIP_HURSMIN=FALSE`)
 
 ### Bias Corrected CMIP6 Data
 
@@ -40,7 +40,7 @@ An initial QC comparison revealed that **all 80 tested files differ** between th
 
 **Key Findings:**
 
-1. **All 80 files still differ** despite LEGACY_MODE replicating the original pipeline's behavior (including time alignment skipping, chunking bug, and flexible dimension ordering)
+1. **All 80 files still differ** despite `LEGACY_MODE` replicating the original pipeline's behavior (including time alignment skipping, chunking bug, and flexible dimension ordering)
 
 2. **All files show dimension reordering** - The QC tool automatically transposes for comparison:
    - CNRM files: `['time', 'lon', 'lat']` → `['lat', 'lon', 'time']`

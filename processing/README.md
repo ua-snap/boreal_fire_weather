@@ -1,8 +1,14 @@
-# Bias Correction of CMIP6 GCMs and Calculation of CFFDRS Fire Weather Indices
+# Revision of bias corrected CMIP6 GCMs and Recalculation of CFFDRS Fire Weather Indices
 
-Run the following pipeline to bias correct CMIP6 data variables using ERA5, then calculate CFFDRS fire weather indices from the results. 
+Run the following pipeline to revise bias corrected + downscaled CMIP6 data, then recalculate CFFDRS fire weather indices from the results. 
 
-This README assumes you have downloaded copies of the CMIP6 and ERA5 source data. Contact SNAP for information about obtaining source data for this processing pipeline.
+This README assumes you have downloaded copies of the bias corrected + downscaled CMIP6 data from this USGS ScienceBase data release: https://www.sciencebase.gov/catalog/item/67ead89cd34ed02007f8357f. Contact SNAP for information about obtaining source data for this processing pipeline.
+
+### Background
+
+In the original processing of this dataset, some humidity values in the bias corrected + downscaled CMIP6 data (`hursmin` variable) were outside the range of 0-100. This was a data artifact of the quantile delta mapping method, and had downstream effects on the CFFDRS indices. The goal of this processing pipeline is to limit the `hursmin` variable values to 0-100 and recalculate the CFFDRS indices.
+
+**NOTE:**  SNAP originally attempted to rerun the entire bias correction + downscaling pipeline from source data. Valid outputs were produced, but did not exactly match the original bias corrected + downscaled CMIP6 dataset. Since achieving byte-for-byte reproducibility of the original dataset was somewhat out of scope for this revision, SNAP decided to focus on the revision of files in the data release. However, the entire pipeline is included here for future work; scripts `01_process_era.py`, `02_process_cmip6.py`, and `03_bias_correct_gcms.py` constitute this earlier part of the pipeline. The instructions below describe the revision process and are limited to scripts `03b_fix_bias_corrected_gcms.py` and `04_calculate_cffdrs.py`.
 
 ### Setup
 
