@@ -4,6 +4,7 @@ import numpy as np
 from pathlib import Path
 from datetime import datetime
 import time
+import os
 
 from config import (
     ERA5_PROCESSED,
@@ -108,6 +109,16 @@ def ffmc_calc(tas, pr, sfcWind, hurs, ffmc0: np.ndarray = 85.0) -> np.ndarray:
     # Constrain ffmc values to a max of 101.0. Could be theoretically higher
     # than this when moisture content (m) is less than 0.05.
     ffmc = np.where(ffmc > 101.0, 101.0, ffmc)
+
+    # Mask output where any input is NaN
+    mask = (
+        np.isnan(tas)
+        | np.isnan(pr)
+        | np.isnan(sfcWind)
+        | np.isnan(hurs)
+        | np.isnan(ffmc0)
+    )
+    ffmc = np.where(mask, np.nan, ffmc)
 
     return ffmc[...]
 
@@ -483,64 +494,70 @@ if __name__ == "__main__":
     print(f"Using bias-corrected data from: {OUT_DIR}/bias_corrected")
     print(f"{'='*60}\n")
 
-    era5_dir = Path(ERA5_PROCESSED)
+    era5_processed_env = os.environ.get("ERA5_PROCESSED", None)
+    if era5_processed_env is not None and ERA5_PROCESSED:
+        era5_dir = Path(ERA5_PROCESSED)
 
-    era5_cffdrs_dir = Path(OUT_DIR).joinpath("cffdrs", "era5")
-    if era5_cffdrs_dir.exists() is False:
-        era5_cffdrs_dir.mkdir(parents=True)
+        era5_cffdrs_dir = Path(OUT_DIR).joinpath("cffdrs", "era5")
+        if era5_cffdrs_dir.exists() is False:
+            era5_cffdrs_dir.mkdir(parents=True)
 
-    for gcm in gcm_list:
-        cmip6_cffdrs_dir_i = Path(OUT_DIR).joinpath("cffdrs", gcm)
-        if cmip6_cffdrs_dir_i.exists() is False:
-            cmip6_cffdrs_dir_i.mkdir(parents=True)
+        for gcm in gcm_list:
+            cmip6_cffdrs_dir_i = Path(OUT_DIR).joinpath("cffdrs", gcm)
+            if cmip6_cffdrs_dir_i.exists() is False:
+                cmip6_cffdrs_dir_i.mkdir(parents=True)
 
-    era5_year_range = range(era5_years[0], era5_years[1] + 1)
-    cmip6_year_range = range(hist_years[0], sim_periods[-1][1] + 1)
+        era5_year_range = range(era5_years[0], era5_years[1] + 1)
+        cmip6_year_range = range(hist_years[0], sim_periods[-1][1] + 1)
 
-    with tqdm(total=len(era5_year_range), desc="Processing ERA5") as pbar:
-        for year in era5_year_range:
-            pbar.set_postfix({"year": year})
+        with tqdm(total=len(era5_year_range), desc="Processing ERA5") as pbar:
+            for year in era5_year_range:
+                pbar.set_postfix({"year": year})
 
-            # Get file list of era5 variables for a single year ...
-            filelist = list(era5_dir.glob("*%d*nc" % year))
-            metvars = xr.open_mfdataset(filelist, engine="h5netcdf")
+                # Get file list of era5 variables for a single year ...
+                filelist = list(era5_dir.glob("*%d*nc" % year))
+                metvars = xr.open_mfdataset(filelist, engine="h5netcdf")
 
-            # Transpose axes of data arrays to make sure they're in right order
-            metvars = metvars.transpose("time", "lat", "lon")
+                # Transpose axes of data arrays to make sure they're in right order
+                metvars = metvars.transpose("time", "lat", "lon")
 
-            tas = metvars["tasmax"].values
-            pr = metvars["pr"].values
-            sfcWind = metvars["sfcWind"].values
-            hurs = metvars["hursmin"].values
-            mon = metvars["time"].dt.month.values
+                tas = metvars["tasmax"].values
+                pr = metvars["pr"].values
+                sfcWind = metvars["sfcWind"].values
+                hurs = metvars["hursmin"].values
+                mon = metvars["time"].dt.month.values
 
-            # Calculate CFFDRS indices
-            cffdrs_vals = cffdrs_calc(tas, pr, sfcWind, hurs, mon)
+                # Calculate CFFDRS indices
+                cffdrs_vals = cffdrs_calc(tas, pr, sfcWind, hurs, mon)
 
-            # Put CFFDRS results in xarray dataset
-            # do not include dsr in output dataset since it's not used in any of the analyses
-            cffdrs_ds = xr.Dataset(
-                data_vars={
-                    "ffmc": (["time", "lat", "lon"], cffdrs_vals["ffmc"]),
-                    "dmc": (["time", "lat", "lon"], cffdrs_vals["dmc"]),
-                    "dc": (["time", "lat", "lon"], cffdrs_vals["dc"]),
-                    "isi": (["time", "lat", "lon"], cffdrs_vals["isi"]),
-                    "bui": (["time", "lat", "lon"], cffdrs_vals["bui"]),
-                    "fwi": (["time", "lat", "lon"], cffdrs_vals["fwi"]),
-                },
-                coords={
-                    "time": ("time", metvars["time"].values, metvars["time"].attrs),
-                    "lat": ("lat", metvars["lat"].values, metvars["lat"].attrs),
-                    "lon": ("lon", metvars["lon"].values, metvars["lon"].attrs),
-                },
-            )
+                # Put CFFDRS results in xarray dataset
+                # do not include dsr in output dataset since it's not used in any of the analyses
+                cffdrs_ds = xr.Dataset(
+                    data_vars={
+                        "ffmc": (["time", "lat", "lon"], cffdrs_vals["ffmc"]),
+                        "dmc": (["time", "lat", "lon"], cffdrs_vals["dmc"]),
+                        "dc": (["time", "lat", "lon"], cffdrs_vals["dc"]),
+                        "isi": (["time", "lat", "lon"], cffdrs_vals["isi"]),
+                        "bui": (["time", "lat", "lon"], cffdrs_vals["bui"]),
+                        "fwi": (["time", "lat", "lon"], cffdrs_vals["fwi"]),
+                    },
+                    coords={
+                        "time": ("time", metvars["time"].values, metvars["time"].attrs),
+                        "lat": ("lat", metvars["lat"].values, metvars["lat"].attrs),
+                        "lon": ("lon", metvars["lon"].values, metvars["lon"].attrs),
+                    },
+                )
 
-            # Export/write CFFDRS results to netcdf file
-            cffdrs_ds = cffdrs_ds.astype("float32")
-            export_fn = era5_cffdrs_dir / ("cffdrs_era5_%d.nc" % year)
-            cffdrs_ds.to_netcdf(export_fn, engine="h5netcdf")
+                # Export/write CFFDRS results to netcdf file
+                cffdrs_ds = cffdrs_ds.astype("float32")
+                export_fn = era5_cffdrs_dir / ("cffdrs_era5_%d.nc" % year)
+                cffdrs_ds.to_netcdf(export_fn, engine="h5netcdf")
 
-            pbar.update()
+                pbar.update()
+    else:
+        print(
+            "ERA5_PROCESSED environment variable not set. Skipping ERA5 data processing."
+        )
 
     with tqdm(
         total=len(cmip6_year_range) * len(gcm_list), desc="Processing GCMs"

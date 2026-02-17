@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # Calculate total number of files to process (all variables)
     N = len(gcm_list) * len(metvars) * len(all_years)
 
-    with tqdm(total=N, desc="Processing all variables") as pbar:
+    with tqdm(total=N, desc="Processing ...") as pbar:
         for gcm in gcm_list:
             # Input and output directories for this GCM
             in_dir = input_base.joinpath(gcm)

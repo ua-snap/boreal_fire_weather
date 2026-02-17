@@ -2,37 +2,29 @@
 """
 Quality Control Script for Boreal Fire Weather Processing Pipeline
 
-This script compares NetCDF datasets from two different processing pipeline runs
-to ensure they produce identical values. It is designed to validate that the
-current version of the processing pipeline produces results identical to the
-older version (https://zenodo.org/records/7783759).
+This script compares NetCDF datasets from two different processing pipeline runs.
+By default, it generates visual HTML reports for failed comparisons, and prints text-based QC reports to stdout.
+Use --text-only to skip visualizations and only print text reports.
 
 Usage:
-    python compare_datasets.py <old_dir> <new_dir> [variables] [max_files]
+    python compare_datasets.py <old_dir> <new_dir> <output_dir> [variables] [max_files] [--text-only]
 
 Arguments:
     old_dir     : Path to directory containing reference/old dataset files
     new_dir     : Path to directory containing new dataset files to validate
+    output_dir  : Directory where QC outputs (notebooks/html) will be saved
     variables   : (Optional) Comma-separated list of variables to check (e.g., "tasmax,pr,hursmin")
                   If not provided, all matching files are compared
     max_files   : (Optional) Maximum number of files to randomly sample per variable
-                  If not provided, all matching files are compared
+                  If not provided, all matching files are compared. Not recommended!
+    --text-only : (Optional) Generate text report only, skip visualizations
 
 Examples:
-    # Compare all files in both directories
-    python compare_datasets.py /data/old /data/new
-
-    # Compare only specific variables
-    python compare_datasets.py /data/old /data/new "tasmax,pr,hursmin"
-
-    # Compare 20 randomly selected files per variable
-    python compare_datasets.py /data/old /data/new "tasmax,pr" 20
-
-    # Compare 10 files of all variables
-    python compare_datasets.py /data/old /data/new "" 10
-
-    # Output to a file instead of console
-    python qc/compare_datasets.py /data/old /data/new "" 20 > qc/cffdrs/original_vs_hursmin_fixed.txt
+    python compare_datasets.py /data/old /data/new /output/qc
+    python compare_datasets.py /data/old /data/new /output/qc --text-only
+    python compare_datasets.py /data/old /data/new /output/qc "tasmax,pr,hursmin"
+    python compare_datasets.py /data/old /data/new /output/qc "tasmax,pr" 20
+    python compare_datasets.py /data/old /data/new /output/qc "" 10 --text-only
 """
 
 import sys
@@ -42,6 +34,8 @@ import xarray as xr
 import numpy as np
 from collections import defaultdict
 import random
+import subprocess
+import json
 
 
 def find_matching_files(dir1: Path, dir2: Path) -> dict:
@@ -75,25 +69,43 @@ def find_matching_files(dir1: Path, dir2: Path) -> dict:
     return {name: (files1[name], files2[name]) for name in common_names}
 
 
-def group_files_by_variable(file_pairs: dict) -> dict:
+def group_files_by_variable(file_pairs: dict, variables: list = None) -> dict:
     """
     Group file pairs by variable name (extracted from filename).
+
+    Special handling: If filename contains 'cffdrs', group under each CFFDRS index variable (ffmc, dmc, dc, isi, bui, fwi).
+    If a user-defined variable list is provided, only include cffdrs variables in that list.
 
     Parameters
     ----------
     file_pairs : dict
         Dictionary of filename: (path1, path2) pairs
+    variables : list, optional
+        List of variable names to check. If None, use all cffdrs variables.
 
     Returns
     -------
     dict : Dictionary mapping variable names to lists of file pairs
     """
     var_groups = defaultdict(list)
+    cffdrs_vars = ["ffmc", "dmc", "dc", "isi", "bui", "fwi"]
+
+    # If variables is provided, filter cffdrs_vars accordingly
+    cffdrs_vars_to_use = cffdrs_vars
+    if variables is not None:
+        cffdrs_vars_to_use = [v for v in cffdrs_vars if v in variables]
 
     for filename, (path1, path2) in file_pairs.items():
-        # Extract variable name (assumes format: varname_*)
-        var_name = filename.split("_")[0]
-        var_groups[var_name].append((filename, path1, path2))
+        if "cffdrs" in filename.lower():
+            # Group this file under each CFFDRS index variable (filtered by user list if provided)
+            for v in cffdrs_vars_to_use:
+                var_groups[v].append((filename, path1, path2))
+        else:
+            # Extract variable name (assumes format: varname_*)
+            var_name = filename.split("_")[0]
+            # If variables is provided, only include if in list
+            if (variables is None) or (var_name in variables):
+                var_groups[var_name].append((filename, path1, path2))
 
     return dict(var_groups)
 
@@ -140,14 +152,24 @@ def align_dimensions(ds1: xr.Dataset, ds2: xr.Dataset, var: str) -> tuple:
                 )
         except Exception as e:
             # If we can't align, return arrays as-is with failure flag
-            return arr1.values, arr2.values, False, f" (cannot align: {dims1} vs {dims2})"
+            return (
+                arr1.values,
+                arr2.values,
+                False,
+                f" (cannot align: {dims1} vs {dims2})",
+            )
     # If we can't align, return arrays as-is with failure flag
-    return arr1.values, arr2.values, False, f" (different dimensions: {dims1} vs {dims2})"
+    return (
+        arr1.values,
+        arr2.values,
+        False,
+        f" (different dimensions: {dims1} vs {dims2})",
+    )
 
 
 def compare_datasets(file1: Path, file2: Path) -> tuple:
     """
-    Compare two NetCDF datasets and check if they are identical.
+    Compare all data variables in two NetCDF datasets and check if they are identical.
 
     Parameters
     ----------
@@ -158,11 +180,14 @@ def compare_datasets(file1: Path, file2: Path) -> tuple:
 
     Returns
     -------
-    tuple : (bool, str, dict) - (is_identical, message, stats)
+    tuple : (bool, str, dict)
+        is_identical: True if all variables are identical, False otherwise
+        message: Description of differences or confirmation of identity
+        stats: Dictionary of difference statistics for each variable
     """
     try:
-        ds1 = xr.open_dataset(file1, engine="h5netcdf")
-        ds2 = xr.open_dataset(file2, engine="h5netcdf")
+        ds1 = xr.open_dataset(file1)
+        ds2 = xr.open_dataset(file2)
     except Exception as e:
         return False, f"Error opening files: {e}", {}
 
@@ -243,7 +268,137 @@ def compare_datasets(file1: Path, file2: Path) -> tuple:
         return False, "\n".join(messages), stats
 
 
-def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = None):
+def generate_visualizations(
+    file_pairs_to_visualize: list, output_dir: Path, shapefile_path: Path
+):
+    """
+    Generate visual comparison notebooks using papermill for failed comparisons.
+
+    Parameters
+    ----------
+    file_pairs_to_visualize : list
+        List of (filename, ref_path, new_path, variables) tuples for failed files
+    output_dir : Path
+        Directory to save output notebooks and HTML
+    shapefile_path : Path
+        Path to shapefile for boundary overlay in visualizations
+    """
+    if not file_pairs_to_visualize:
+        print("No files to visualize.")
+        return
+
+    print("\n" + "=" * 80)
+    print("GENERATING VISUAL COMPARISONS")
+    print("=" * 80)
+    print(f"Generating visualizations for {len(file_pairs_to_visualize)} file(s)...\n")
+
+    # Path to notebook template and qc_utils.py
+    template_nb = Path(__file__).parent / "visualize_comparison.ipynb"
+    qc_utils_dir = str(
+        Path(__file__).parent.resolve()
+    )  # Absolute path to qc/ directory
+
+    if not template_nb.exists():
+        print(f"ERROR: Notebook template not found at {template_nb}")
+        print("Skipping visualization generation.")
+        return
+
+    # Create output directory for notebooks
+    nb_output_dir = output_dir / "notebooks"
+    nb_output_dir.mkdir(parents=True, exist_ok=True)
+
+    html_output_dir = output_dir / "html"
+    html_output_dir.mkdir(parents=True, exist_ok=True)
+
+    success_count = 0
+    fail_count = 0
+
+    for filename, ref_path, new_path, var_list in file_pairs_to_visualize:
+        try:
+            # Create output paths
+            base_name = filename.replace(".nc", "")
+            output_nb = nb_output_dir / f"{base_name}_comparison.ipynb"
+            output_html = html_output_dir / f"{base_name}_comparison.html"
+
+            print(f"  Processing: {filename}")
+
+            # Execute notebook with papermill
+            result = subprocess.run(
+                [
+                    "papermill",
+                    str(template_nb),
+                    str(output_nb),
+                    "-p",
+                    "ref_file",
+                    str(ref_path),
+                    "-p",
+                    "new_file",
+                    str(new_path),
+                    "-p",
+                    "shapefile_path",
+                    str(shapefile_path) if shapefile_path is not None else "",
+                    "-p",
+                    "qc_utils_path",
+                    qc_utils_dir,
+                    "-y",
+                    f"variables: {json.dumps(var_list)}",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=600,  # 10 minute timeout
+            )
+
+            if result.returncode != 0:
+                print(f"    ERROR executing notebook: {result.stderr}")
+                fail_count += 1
+                continue
+
+            # Convert notebook to HTML
+            html_filename = f"{base_name}_comparison.html"
+            result_html = subprocess.run(
+                [
+                    "jupyter",
+                    "nbconvert",
+                    "--to",
+                    "html",
+                    "--output-dir",
+                    str(html_output_dir),
+                    "--output",
+                    html_filename,
+                    str(output_nb),
+                ],
+                capture_output=True,
+                text=True,
+                timeout=120,
+            )
+
+            if result_html.returncode != 0:
+                print(f"    WARNING: Failed to convert to HTML: {result_html.stderr}")
+                print(f"    Notebook saved at: {output_nb}")
+            else:
+                print(f"    ✓ HTML report: {output_html}")
+
+            success_count += 1
+
+        except subprocess.TimeoutExpired:
+            print(f"    ERROR: Visualization timed out for {filename}")
+            fail_count += 1
+        except Exception as e:
+            print(f"    ERROR: {str(e)}")
+            fail_count += 1
+
+    print(f"\nVisualization summary: {success_count} succeeded, {fail_count} failed")
+    print("=" * 80)
+
+
+def run_qc(
+    old_dir: str,
+    new_dir: str,
+    output_dir: str,
+    variables: list = None,
+    max_files: int = None,
+    text_only: bool = False,
+):
     """
     Run quality control comparison between two dataset directories.
 
@@ -253,13 +408,22 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
         Path to reference/old dataset directory
     new_dir : str
         Path to new dataset directory to validate
+    output_dir : str
+        Directory where QC outputs (notebooks/html) will be saved
     variables : list, optional
         List of variable names to check. If None, all variables are checked
     max_files : int, optional
         Maximum number of files to randomly sample per variable. If None, all files are checked
+    text_only : bool, optional
+        If True, only generate text output (skip visualizations). Default: False
+
+    Notes
+    -----
+    Output is always printed to stdout. Visualizations are only generated for failed files unless --text-only is set.
     """
     old_path = Path(old_dir)
     new_path = Path(new_dir)
+    output_path = Path(output_dir)
 
     # Validate directories exist
     if not old_path.exists():
@@ -269,11 +433,15 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
         print(f"ERROR: New dataset directory does not exist: {new_dir}")
         sys.exit(1)
 
+    # Create output directory if it doesn't exist
+    output_path.mkdir(parents=True, exist_ok=True)
+
     print("=" * 80)
     print("BOREAL FIRE WEATHER PIPELINE - QUALITY CONTROL")
     print("=" * 80)
     print(f"Reference directory: {old_dir}")
     print(f"New directory:       {new_dir}")
+    print(f"Output directory:    {output_dir}")
     if variables:
         print(f"Variables to check:  {', '.join(variables)}")
     else:
@@ -290,17 +458,15 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
     file_pairs = find_matching_files(old_path, new_path)
     print(f"Found {len(file_pairs)} matching files\n")
 
-    # Group by variable
-    var_groups = group_files_by_variable(file_pairs)
+    # Group by variable (with cffdrs handled as multi-var, and respecting user variable list)
+    var_groups = group_files_by_variable(file_pairs, variables)
 
-    # Filter by requested variables
-    if variables:
-        var_groups = {
-            var: files for var, files in var_groups.items() if var in variables
-        }
-        if not var_groups:
+    if not var_groups:
+        if variables:
             print(f"ERROR: No files found for requested variables: {variables}")
-            sys.exit(1)
+        else:
+            print(f"ERROR: No files found for any variables.")
+        sys.exit(1)
 
     # Sample files if max_files specified
     if max_files:
@@ -312,6 +478,9 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
     total_files = sum(len(files) for files in var_groups.values())
     passed = 0
     failed = 0
+
+    # Track files for visualization
+    files_to_visualize = []
 
     print(
         f"Running QC on {total_files} files across {len(var_groups)} variable(s)...\n"
@@ -326,7 +495,76 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
         var_failed = 0
 
         for filename, path1, path2 in sorted(files):
-            is_identical, message, stats = compare_datasets(path1, path2)
+            # For cffdrs files, compare only the relevant variable
+            if var_name in ["ffmc", "dmc", "dc", "isi", "bui", "fwi"]:
+                # Compare only this index variable
+                try:
+                    ds1 = xr.open_dataset(path1)
+                    ds2 = xr.open_dataset(path2)
+                    if var_name not in ds1.data_vars or var_name not in ds2.data_vars:
+                        is_identical = False
+                        message = (
+                            f"Variable '{var_name}' not found in one or both files."
+                        )
+                        stats = {}
+                    else:
+                        arr1, arr2, aligned, align_msg = align_dimensions(
+                            ds1, ds2, var_name
+                        )
+                        if arr1.shape != arr2.shape:
+                            is_identical = False
+                            message = f"  Variable '{var_name}': Shape mismatch ({arr1.shape} vs {arr2.shape}){align_msg}"
+                            stats = {}
+                        else:
+                            nan_mask1 = np.isnan(arr1)
+                            nan_mask2 = np.isnan(arr2)
+                            if not np.array_equal(nan_mask1, nan_mask2):
+                                is_identical = False
+                                nan_diff = np.sum(nan_mask1 != nan_mask2)
+                                message = f"  Variable '{var_name}': NaN patterns differ ({nan_diff} locations)"
+                                stats = {}
+                            else:
+                                valid_mask = ~nan_mask1 & ~nan_mask2
+                                if np.any(valid_mask):
+                                    vals1 = arr1[valid_mask]
+                                    vals2 = arr2[valid_mask]
+                                    if not np.allclose(
+                                        vals1, vals2, rtol=0, atol=0, equal_nan=True
+                                    ):
+                                        is_identical = False
+                                        max_diff = np.max(np.abs(vals1 - vals2))
+                                        mean_diff = np.mean(np.abs(vals1 - vals2))
+                                        n_diff = np.sum(vals1 != vals2)
+                                        message = (
+                                            f"  Variable '{var_name}': Values differ\n"
+                                            f"    Max difference: {max_diff:.2e}\n"
+                                            f"    Mean difference: {mean_diff:.2e}\n"
+                                            f"    Number of different values: {n_diff}/{len(vals1)}"
+                                        )
+                                        stats = {
+                                            "max_diff": float(max_diff),
+                                            "mean_diff": float(mean_diff),
+                                            "n_diff": int(n_diff),
+                                            "n_total": int(len(vals1)),
+                                        }
+                                    else:
+                                        is_identical = True
+                                        message = "Datasets are identical"
+                                        stats = {}
+                                else:
+                                    is_identical = True
+                                    message = (
+                                        "Datasets are identical (all values are NaN)"
+                                    )
+                                    stats = {}
+                    ds1.close()
+                    ds2.close()
+                except Exception as e:
+                    is_identical = False
+                    message = f"Error opening or comparing files: {e}"
+                    stats = {}
+            else:
+                is_identical, message, stats = compare_datasets(path1, path2)
 
             if is_identical:
                 var_passed += 1
@@ -336,6 +574,11 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
                 var_failed += 1
                 failed += 1
                 status = "✗ FAIL"
+
+                # Collect failed files for visualization
+                if not text_only:
+                    # For cffdrs, only visualize the failing variable
+                    files_to_visualize.append((filename, path1, path2, [var_name]))
 
             print(f"  {status}: {filename}")
             if not is_identical:
@@ -353,6 +596,17 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
     print(f"Passed:               {passed}")
     print(f"Failed:               {failed}")
 
+    # Generate visualizations for failed files (unless text_only mode)
+    if not text_only and files_to_visualize:
+        # Determine shapefile path
+        shp_path = Path("./shp/ecos.shp")
+        if not shp_path.exists():
+            print(f"WARNING: Shapefile not found at {shp_path}")
+            print("Visualizations will be generated without shapefile overlay.")
+            shp_path = None
+        # Generate visualizations in the specified output directory
+        generate_visualizations(files_to_visualize, output_path, shp_path)
+
     if failed == 0:
         print("\n✓ All files identical - QC PASSED")
         print("=" * 80)
@@ -364,28 +618,37 @@ def run_qc(old_dir: str, new_dir: str, variables: list = None, max_files: int = 
 
 
 def main():
-    """Main entry point for the script."""
+    """
+    Main entry point for the script.
+    Parses command-line arguments and runs quality control.
+    """
     parser = argparse.ArgumentParser(
         description="Compare NetCDF datasets between two processing pipeline runs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  # Compare all files in both directories
-  python compare_datasets.py /data/old /data/new
+  # Generate visual HTML reports (default)
+  python compare_datasets.py /data/old /data/new /output/qc
 
-  # Compare only specific variables
-  python compare_datasets.py /data/old /data/new tasmax,pr,hursmin
+  # Text report to stdout
+  python compare_datasets.py /data/old /data/new /output/qc --text-only
 
-  # Compare 20 randomly selected files per variable
-  python compare_datasets.py /data/old /data/new tasmax,pr 20
+  # Compare only specific variables with visualizations
+  python compare_datasets.py /data/old /data/new /output/qc tasmax,pr,hursmin
 
-  # Compare 10 files of all variables
-  python compare_datasets.py /data/old /data/new "" 10
+  # Compare 20 randomly selected files per variable with text output
+  python compare_datasets.py /data/old /data/new /output/qc tasmax,pr 20 --text-only
+
+  # Compare 10 files of all variables with visualizations
+  python compare_datasets.py /data/old /data/new /output/qc "" 10
         """,
     )
 
     parser.add_argument("old_dir", help="Path to reference/old dataset directory")
     parser.add_argument("new_dir", help="Path to new dataset directory to validate")
+    parser.add_argument(
+        "output_dir", help="Directory where QC outputs (notebooks/html) will be saved"
+    )
     parser.add_argument(
         "variables",
         nargs="?",
@@ -398,6 +661,11 @@ Examples:
         type=int,
         default=None,
         help="Maximum number of files to randomly sample per variable. Leave empty to check all files.",
+    )
+    parser.add_argument(
+        "--text-only",
+        action="store_true",
+        help="Generate text report only (skip visualization notebooks). Default: generate visualizations.",
     )
 
     # If no arguments provided, print help
@@ -413,7 +681,14 @@ Examples:
         variables = [v.strip() for v in args.variables.split(",") if v.strip()]
 
     # Run QC
-    exit_code = run_qc(args.old_dir, args.new_dir, variables, args.max_files)
+    exit_code = run_qc(
+        args.old_dir,
+        args.new_dir,
+        args.output_dir,
+        variables,
+        args.max_files,
+        text_only=args.text_only,
+    )
     sys.exit(exit_code)
 
 
