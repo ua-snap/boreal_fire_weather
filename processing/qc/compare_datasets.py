@@ -3,11 +3,11 @@
 Quality Control Script for Boreal Fire Weather Processing Pipeline
 
 This script compares NetCDF datasets from two different processing pipeline runs.
-By default, it generates visual HTML reports with maps showing differences.
-Use --text-only for traditional text-based QC reports.
+By default, it generates visual HTML reports for failed comparisons, and prints text-based QC reports to stdout.
+Use --text-only to skip visualizations and only print text reports.
 
 Usage:
-    python compare_datasets.py <old_dir> <new_dir> <output_dir> [variables] [max_files] [--text-only] [-o output.txt]
+    python compare_datasets.py <old_dir> <new_dir> <output_dir> [variables] [max_files] [--text-only]
 
 Arguments:
     old_dir     : Path to directory containing reference/old dataset files
@@ -18,26 +18,12 @@ Arguments:
     max_files   : (Optional) Maximum number of files to randomly sample per variable
                   If not provided, all matching files are compared. Not recommended!
     --text-only : (Optional) Generate text report only, skip visualizations
-    -o, --output: (Optional) Save text report to file instead of stdout
-    --shapefile : (Optional) Custom shapefile path for boundary overlay in visualizations
 
 Examples:
-    # Generate visual HTML reports (default)
     python compare_datasets.py /data/old /data/new /output/qc
-
-    # Text report to stdout
     python compare_datasets.py /data/old /data/new /output/qc --text-only
-
-    # Text report saved to file
-    python compare_datasets.py /data/old /data/new /output/qc --text-only -o qc_report.txt
-
-    # Compare only specific variables with visualizations
     python compare_datasets.py /data/old /data/new /output/qc "tasmax,pr,hursmin"
-
-    # Compare 20 randomly selected files per variable with visualizations
     python compare_datasets.py /data/old /data/new /output/qc "tasmax,pr" 20
-
-    # Compare 10 files of all variables with text output
     python compare_datasets.py /data/old /data/new /output/qc "" 10 --text-only
 """
 
@@ -183,7 +169,7 @@ def align_dimensions(ds1: xr.Dataset, ds2: xr.Dataset, var: str) -> tuple:
 
 def compare_datasets(file1: Path, file2: Path) -> tuple:
     """
-    Compare two NetCDF datasets and check if they are identical.
+    Compare all data variables in two NetCDF datasets and check if they are identical.
 
     Parameters
     ----------
@@ -194,7 +180,10 @@ def compare_datasets(file1: Path, file2: Path) -> tuple:
 
     Returns
     -------
-    tuple : (bool, str, dict) - (is_identical, message, stats)
+    tuple : (bool, str, dict)
+        is_identical: True if all variables are identical, False otherwise
+        message: Description of differences or confirmation of identity
+        stats: Dictionary of difference statistics for each variable
     """
     try:
         ds1 = xr.open_dataset(file1)
@@ -283,16 +272,16 @@ def generate_visualizations(
     file_pairs_to_visualize: list, output_dir: Path, shapefile_path: Path
 ):
     """
-    Generate visual comparison notebooks using papermill.
+    Generate visual comparison notebooks using papermill for failed comparisons.
 
     Parameters
     ----------
     file_pairs_to_visualize : list
-        List of (filename, ref_path, new_path, variables) tuples
+        List of (filename, ref_path, new_path, variables) tuples for failed files
     output_dir : Path
         Directory to save output notebooks and HTML
     shapefile_path : Path
-        Path to shapefile for boundary overlay
+        Path to shapefile for boundary overlay in visualizations
     """
     if not file_pairs_to_visualize:
         print("No files to visualize.")
@@ -333,15 +322,6 @@ def generate_visualizations(
 
             print(f"  Processing: {filename}")
 
-            # Prepare parameters for papermill
-            parameters = {
-                "ref_file": str(ref_path),
-                "new_file": str(new_path),
-                "variables": var_list,
-                "shapefile_path": str(shapefile_path),
-                "qc_utils_path": qc_utils_dir,
-            }
-
             # Execute notebook with papermill
             result = subprocess.run(
                 [
@@ -356,7 +336,7 @@ def generate_visualizations(
                     str(new_path),
                     "-p",
                     "shapefile_path",
-                    str(shapefile_path),
+                    str(shapefile_path) if shapefile_path is not None else "",
                     "-p",
                     "qc_utils_path",
                     qc_utils_dir,
@@ -418,8 +398,6 @@ def run_qc(
     variables: list = None,
     max_files: int = None,
     text_only: bool = False,
-    text_output: str = None,
-    shapefile_path: str = None,
 ):
     """
     Run quality control comparison between two dataset directories.
@@ -438,21 +416,14 @@ def run_qc(
         Maximum number of files to randomly sample per variable. If None, all files are checked
     text_only : bool, optional
         If True, only generate text output (skip visualizations). Default: False
-    text_output : str, optional
-        Path to text output file. If None and text_only=True, prints to stdout
-    shapefile_path : str, optional
-        Path to shapefile for boundary overlay in visualizations
+
+    Notes
+    -----
+    Output is always printed to stdout. Visualizations are only generated for failed files unless --text-only is set.
     """
     old_path = Path(old_dir)
     new_path = Path(new_dir)
     output_path = Path(output_dir)
-
-    # Setup output stream
-    output_file = None
-    original_stdout = sys.stdout
-    if text_output:
-        output_file = open(text_output, "w")
-        sys.stdout = output_file
 
     # Validate directories exist
     if not old_path.exists():
@@ -486,8 +457,6 @@ def run_qc(
     print("Finding matching files...")
     file_pairs = find_matching_files(old_path, new_path)
     print(f"Found {len(file_pairs)} matching files\n")
-
-
 
     # Group by variable (with cffdrs handled as multi-var, and respecting user variable list)
     var_groups = group_files_by_variable(file_pairs, variables)
@@ -534,10 +503,14 @@ def run_qc(
                     ds2 = xr.open_dataset(path2)
                     if var_name not in ds1.data_vars or var_name not in ds2.data_vars:
                         is_identical = False
-                        message = f"Variable '{var_name}' not found in one or both files."
+                        message = (
+                            f"Variable '{var_name}' not found in one or both files."
+                        )
                         stats = {}
                     else:
-                        arr1, arr2, aligned, align_msg = align_dimensions(ds1, ds2, var_name)
+                        arr1, arr2, aligned, align_msg = align_dimensions(
+                            ds1, ds2, var_name
+                        )
                         if arr1.shape != arr2.shape:
                             is_identical = False
                             message = f"  Variable '{var_name}': Shape mismatch ({arr1.shape} vs {arr2.shape}){align_msg}"
@@ -555,7 +528,9 @@ def run_qc(
                                 if np.any(valid_mask):
                                     vals1 = arr1[valid_mask]
                                     vals2 = arr2[valid_mask]
-                                    if not np.allclose(vals1, vals2, rtol=0, atol=0, equal_nan=True):
+                                    if not np.allclose(
+                                        vals1, vals2, rtol=0, atol=0, equal_nan=True
+                                    ):
                                         is_identical = False
                                         max_diff = np.max(np.abs(vals1 - vals2))
                                         mean_diff = np.mean(np.abs(vals1 - vals2))
@@ -578,7 +553,9 @@ def run_qc(
                                         stats = {}
                                 else:
                                     is_identical = True
-                                    message = "Datasets are identical (all values are NaN)"
+                                    message = (
+                                        "Datasets are identical (all values are NaN)"
+                                    )
                                     stats = {}
                     ds1.close()
                     ds2.close()
@@ -619,42 +596,32 @@ def run_qc(
     print(f"Passed:               {passed}")
     print(f"Failed:               {failed}")
 
-    # Close text output file if needed
-    if output_file:
-        sys.stdout = original_stdout
-        output_file.close()
-        print(f"\nText report written to: {text_output}")
-
     # Generate visualizations for failed files (unless text_only mode)
     if not text_only and files_to_visualize:
         # Determine shapefile path
-        if shapefile_path:
-            shp_path = Path(shapefile_path)
-        else:
-            # Try default location relative to this script
-            shp_path = Path(__file__).parent.parent / "shp" / "ecos.shp"
-
+        shp_path = Path("./shp/ecos.shp")
         if not shp_path.exists():
-            print(f"\nWARNING: Shapefile not found at {shp_path}")
+            print(f"WARNING: Shapefile not found at {shp_path}")
             print("Visualizations will be generated without shapefile overlay.")
-
+            shp_path = None
         # Generate visualizations in the specified output directory
         generate_visualizations(files_to_visualize, output_path, shp_path)
 
     if failed == 0:
-        if not output_file:  # Only print if not already in text file
-            print("\n✓ All files identical - QC PASSED")
-            print("=" * 80)
+        print("\n✓ All files identical - QC PASSED")
+        print("=" * 80)
         return 0
     else:
-        if not output_file:
-            print(f"\n✗ {failed} file(s) differ - QC FAILED")
-            print("=" * 80)
+        print(f"\n✗ {failed} file(s) differ - QC FAILED")
+        print("=" * 80)
         return 1
 
 
 def main():
-    """Main entry point for the script."""
+    """
+    Main entry point for the script.
+    Parses command-line arguments and runs quality control.
+    """
     parser = argparse.ArgumentParser(
         description="Compare NetCDF datasets between two processing pipeline runs",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -665,9 +632,6 @@ Examples:
 
   # Text report to stdout
   python compare_datasets.py /data/old /data/new /output/qc --text-only
-
-  # Text report to file
-  python compare_datasets.py /data/old /data/new /output/qc --text-only -o qc_report.txt
 
   # Compare only specific variables with visualizations
   python compare_datasets.py /data/old /data/new /output/qc tasmax,pr,hursmin
@@ -703,19 +667,6 @@ Examples:
         action="store_true",
         help="Generate text report only (skip visualization notebooks). Default: generate visualizations.",
     )
-    parser.add_argument(
-        "--output",
-        "-o",
-        type=str,
-        default=None,
-        help="Path to text output file. If not specified with --text-only, prints to stdout.",
-    )
-    parser.add_argument(
-        "--shapefile",
-        type=str,
-        default=None,
-        help="Path to shapefile for boundary overlay in visualizations",
-    )
 
     # If no arguments provided, print help
     if len(sys.argv) == 1:
@@ -737,8 +688,6 @@ Examples:
         variables,
         args.max_files,
         text_only=args.text_only,
-        text_output=args.output,
-        shapefile_path=args.shapefile,
     )
     sys.exit(exit_code)
 

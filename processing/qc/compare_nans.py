@@ -6,7 +6,7 @@ This script identifies and visualizes NaN pattern differences between datasets.
 It groups files by model+variable and selects representative examples to plot.
 
 Usage:
-    python compare_nans.py <old_dir> <new_dir> <output_dir> [variables] [max_files] [--shapefile path]
+    python compare_nans.py <old_dir> <new_dir> <output_dir> [variables] [max_files]
 
 Arguments:
     old_dir     : Path to directory containing reference/old dataset files
@@ -14,7 +14,6 @@ Arguments:
     output_dir  : Directory where output HTML report will be saved
     variables   : (Optional) Comma-separated list of variables (e.g., "ffmc,dmc,dc")
     max_files   : (Optional) Maximum number of files to randomly sample per variable
-    --shapefile : (Optional) Custom shapefile path for boundary overlay
 
 Examples:
     # Analyze all matching files
@@ -26,8 +25,6 @@ Examples:
     # Sample 50 files per variable
     python compare_nans.py /data/old /data/new /output/nan_qc "" 50
 
-    # Custom shapefile
-    python compare_nans.py /data/old /data/new /output/nan_qc --shapefile ../shp/custom.shp
 """
 
 import sys
@@ -251,7 +248,7 @@ def generate_visualization(
                 qc_utils_path,
                 "-p",
                 "shapefile_path",
-                str(shapefile_path),
+                str(shapefile_path) if shapefile_path is not None else "",
                 "-y",
                 f"selected_files: {json.dumps(selected_files)}",
             ],
@@ -320,11 +317,6 @@ def main():
         default=None,
         help="Max files to sample per variable (optional)",
     )
-    parser.add_argument(
-        "--shapefile",
-        default="shp/ecos.shp",
-        help="Path to shapefile for boundary overlay",
-    )
 
     args = parser.parse_args()
 
@@ -332,7 +324,6 @@ def main():
     old_dir = Path(args.old_dir).resolve()
     new_dir = Path(args.new_dir).resolve()
     output_dir = Path(args.output_dir)
-    shapefile_path = Path(args.shapefile)
     qc_utils_path = str(Path(__file__).parent.resolve())
 
     # Validate input directories
@@ -424,8 +415,13 @@ def main():
         print(f"\nSelected {len(selected)} representative files for visualization")
         print(f"  (1 per model+variable group, max 10 total)")
 
-        # Generate visualization
-        generate_visualization(selected, output_dir, shapefile_path, qc_utils_path)
+        # Generate visualization with shapefile
+        shp_path = Path("./shp/ecos.shp")
+        if not shp_path.exists():
+            print(f"WARNING: Shapefile not found at {shp_path}")
+            print("Visualizations will be generated without shapefile overlay.")
+            shp_path = None
+        generate_visualization(selected, output_dir, shp_path, qc_utils_path)
     else:
         print("\nNo NaN pattern differences found. No visualization generated.")
 

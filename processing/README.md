@@ -34,19 +34,6 @@ export OUT_DIR=/path/for/output/files
 export ERA5_PROCESSED=/path/to/era5/processed
 ```
 
-**Optional Configuration Flags:**
-
-```bash
-# CLIP_HURSMIN: Clip relative humidity to valid range [0, 100]
-# Set to FALSE if trying reproduce original dataset (default: TRUE)
-export CLIP_HURSMIN=TRUE
-
-# LEGACY_MODE: Replicate original pipeline behavior for testing
-# Skips time alignment, dimension ordering, uses buggy chunking (default: FALSE)
-# WARNING: For diagnostic purposes only, not for production use
-export LEGACY_MODE=FALSE
-```
-
 ### Revision Scripts
 
 #### 03b_fix_bias_corrected_gcms.py
@@ -131,22 +118,22 @@ python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR "" 10 --text-only |
 python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR "" 10 --text-only | tee $OUT_DIR/qc/cffdrs_qc.txt
 ```
 
-Alternatively, produce notebooks with a visual comparison of the files. This command chooses 5 random matching files for a single variable, and outputs a notebook comparison (with HTML version) for each file:
+Alternatively, produce notebooks with visual comparison of files that fail QC. This command chooses 5 random matching files for a single variable, and outputs a notebook comparison (with HTML version) for each file:
 ```bash
-python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR "hursmin" 5 --shapefile qc/shp/ecos.shp
-python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR "ffmc" 5 --shapefile qc/shp/ecos.shp
+python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR "hursmin" 5 
+python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR "ffmc" 5 
 ```
 
-We can also compare the NaN patterns between the revised files and the input files from the data release. A single notebook output (with HTML version) chooses a subset of NaN comparisons to plot, while the text output shows comparison results for all matching files. This command chooses 50 random matching files and compares NaN patterns for a single variable:
+We can also compare the NaN patterns between the revised files and the input files from the data release. A single notebook output (with HTML version) chooses a subset of failing NaN comparisons to plot, while the text output shows comparison results for all matching files. This command chooses 50 random matching files and compares NaN patterns for a single variable:
 ```bash
-python qc/compare_nans.py $CMIP6_BIAS_CORRECTED $OUT_DIR $OUT_DIR/qc/nan_qc "ffmc" 50 --shapefile qc/shp/ecos.shp | tee $OUT_DIR/qc/cmip6_nan_qc.txt
-python qc/compare_nans.py /path/to/reference/cffdrs $OUT_DIR $OUT_DIR/qc/nan_qc "ffmc" 50 --shapefile qc/shp/ecos.shp | tee $OUT_DIR/qc/cffdrs_nan_qc.txt
+python qc/compare_nans.py $CMIP6_BIAS_CORRECTED $OUT_DIR $OUT_DIR/qc/nan_qc "ffmc" 50 | tee $OUT_DIR/qc/cmip6_nan_qc.txt
+python qc/compare_nans.py /path/to/reference/cffdrs $OUT_DIR $OUT_DIR/qc/nan_qc "ffmc" 50 | tee $OUT_DIR/qc/cffdrs_nan_qc.txt
 ```
 
 Alternatively, compare all files and all variables. 
 ```bash
-python qc/compare_nans.py $CMIP6_BIAS_CORRECTED $OUT_DIR $OUT_DIR/qc/nan_qc "" --shapefile qc/shp/ecos.shp | tee $OUT_DIR/qc/cmip6_nan_qc.txt
-python qc/compare_nans.py /path/to/reference/cffdrs $OUT_DIR $OUT_DIR/qc/nan_qc "" --shapefile qc/shp/ecos.shp | tee $OUT_DIR/qc/cffdrs_nan_qc.txt
+python qc/compare_nans.py $CMIP6_BIAS_CORRECTED $OUT_DIR $OUT_DIR/qc/nan_qc "" | tee $OUT_DIR/qc/cmip6_nan_qc.txt
+python qc/compare_nans.py /path/to/reference/cffdrs $OUT_DIR $OUT_DIR/qc/nan_qc "" | tee $OUT_DIR/qc/cffdrs_nan_qc.txt
 ```
 
 
