@@ -494,6 +494,8 @@ if __name__ == "__main__":
     print(f"Using bias-corrected data from: {OUT_DIR}/bias_corrected")
     print(f"{'='*60}\n")
 
+    # ERA5 (optional)
+
     era5_processed_env = os.environ.get("ERA5_PROCESSED", None)
     if era5_processed_env is not None and ERA5_PROCESSED:
         era5_dir = Path(ERA5_PROCESSED)
@@ -502,13 +504,7 @@ if __name__ == "__main__":
         if era5_cffdrs_dir.exists() is False:
             era5_cffdrs_dir.mkdir(parents=True)
 
-        for gcm in gcm_list:
-            cmip6_cffdrs_dir_i = Path(OUT_DIR).joinpath("cffdrs", gcm)
-            if cmip6_cffdrs_dir_i.exists() is False:
-                cmip6_cffdrs_dir_i.mkdir(parents=True)
-
         era5_year_range = range(era5_years[0], era5_years[1] + 1)
-        cmip6_year_range = range(hist_years[0], sim_periods[-1][1] + 1)
 
         with tqdm(total=len(era5_year_range), desc="Processing ERA5") as pbar:
             for year in era5_year_range:
@@ -558,6 +554,16 @@ if __name__ == "__main__":
         print(
             "ERA5_PROCESSED environment variable not set. Skipping ERA5 data processing."
         )
+
+
+    # CMIP6 GCMs
+
+    for gcm in gcm_list:
+            cmip6_cffdrs_dir_i = Path(OUT_DIR).joinpath("cffdrs", gcm)
+            if cmip6_cffdrs_dir_i.exists() is False:
+                cmip6_cffdrs_dir_i.mkdir(parents=True)
+
+    cmip6_year_range = range(hist_years[0], sim_periods[-1][1] + 1)
 
     with tqdm(
         total=len(cmip6_year_range) * len(gcm_list), desc="Processing GCMs"
