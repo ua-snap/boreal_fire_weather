@@ -100,7 +100,8 @@ cd ~/boreal_fire_weather/processing
 micromamba activate cffdrs
 
 # Run the scripts
-python 03b_fix_bias_corrected_gcms.py; python 04_calculate_cffdrs.py
+python 03b_fix_bias_corrected_gcms.py
+python 04_calculate_cffdrs.py
 ```
 
 
@@ -300,7 +301,10 @@ cd ~/boreal_fire_weather/processing
 micromamba activate cffdrs
 
 # Run the scripts
-python 01_process_era5.py; python 02_process_cmip6.py; python 03_fix_bias_corrected_gcms.py; python 04_calculate_cffdrs.py
+python 01_process_era5.py
+python 02_process_cmip6.py
+python 03_fix_bias_corrected_gcms.py
+python 04_calculate_cffdrs.py
 ```
 
 ### 5. Quality Control
