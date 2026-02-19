@@ -87,7 +87,7 @@ OUT_DIR/                          # Final outputs
 
 ### 4. Running the Revision Pipeline
 
-The pipeline takes between 3 and 4 hours to complete when run like so:
+The pipeline take about 2 hours to complete when run like so:
 
 ```bash
 # Start a screen session on a compute node
@@ -110,21 +110,26 @@ python 04_calculate_cffdrs.py
 The QC scripts require the use of a separate environment, installed and activated like so:
 ```bash
 micromamba env create -f qc/environment.yml
-micromamba activate cffdrs_qc 
+micromamba activate cffdrs_qc
+```
+
+Make a directory for QC outputs:
+```bash
+mkdir $OUT_DIR/qc
 ```
 
 Here is a quick example comparing the revised files to the input files from the data release. This command chooses 10 random matching files and compares all variables, outputting a text summary to terminal and text file:
 ```bash
-python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR "" 10 --text-only | tee $OUT_DIR/qc/cmip6_qc.txt
+python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR $OUT_DIR/qc "" 10 --text-only | tee $OUT_DIR/qc/cmip6_qc.txt
 
-python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR "" 10 --text-only | tee $OUT_DIR/qc/cffdrs_qc.txt
+python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR $OUT_DIR/qc "" 10 --text-only | tee $OUT_DIR/qc/cffdrs_qc.txt
 ```
 
 Alternatively, produce notebooks with visual comparison of files that fail QC. This command chooses 5 random matching files for a single variable, and outputs a notebook comparison (with HTML version) for each file:
 ```bash
-python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR "hursmin" 5 
+python qc/compare_datasets.py $CMIP6_BIAS_CORRECTED $OUT_DIR $OUT_DIR/qc "hursmin" 5 
 
-python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR "ffmc" 5 
+python qc/compare_datasets.py /path/to/reference/cffdrs $OUT_DIR $OUT_DIR/qc "ffmc" 5 
 ```
 
 We can also compare the NaN patterns between the revised files and the input files from the data release. A single notebook output (with HTML version) chooses a subset of failing NaN comparisons to plot, while the text output shows comparison results for all matching files. This command chooses 50 random matching files and compares NaN patterns for a single variable:
