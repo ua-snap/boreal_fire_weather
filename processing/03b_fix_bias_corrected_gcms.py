@@ -138,6 +138,14 @@ if __name__ == "__main__":
                         # Apply clipping only to hursmin, pass through others unchanged
                         if var == "hursmin":
                             data_array = clip_hursmin(data_array)
+                            # Update min/max attributes after clipping
+                            min_val = float(data_array.min().values)
+                            max_val = float(data_array.max().values)
+                            for attr in list(ds[var].attrs.keys()):
+                                if "min" in attr:
+                                    ds[var].attrs[attr] = min_val
+                                if "max" in attr:
+                                    ds[var].attrs[attr] = max_val
 
                         # Create new dataset with processed data
                         ds_out = data_array.to_dataset(name=var)
